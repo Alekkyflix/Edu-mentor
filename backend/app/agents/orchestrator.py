@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional
-from edumentor_ai.core.strands_sdk import StrandsClient
-from edumentor_ai.core.state_manager import StateManager
+from backend.app.core.strands_sdk import StrandsClient
+from backend.app.core.state_manager import StateManager
 import yaml
 
 class OrchestratorAgent:

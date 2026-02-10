@@ -1,4 +1,4 @@
-from edumentor_ai.core.strands_sdk import StrandsClient
+from backend.app.core.strands_sdk import StrandsClient
 
 class SonicAgent:
     """
