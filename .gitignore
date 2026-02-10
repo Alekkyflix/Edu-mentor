@@ -1,0 +1,140 @@
+# =====================================================
+# EduMentor AI - Git Ignore Configuration
+# =====================================================
+
+# Environment Variables (CRITICAL - NEVER COMMIT)
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+*.env
+
+# AWS Credentials (CRITICAL - NEVER COMMIT)
+.aws/
+credentials
+config
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv
+*.venv
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Type Checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+edumentor_dev.db
+migrations/versions/*.pyc
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Security & Secrets
+secrets/
+*.pem
+*.key
+*.crt
+
+# Terraform (Infrastructure)
+infrastructure/.terraform/
+infrastructure/*.tfstate
+infrastructure/*.tfstate.backup
+infrastructure/.terraform.lock.hcl
+
+# Docker
+docker-compose.override.yml
+
+# Frontend (Node.js / Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.turbo/
+frontend/dist/
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary Files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Large Model Files (if caching embeddings locally)
+*.bin
+*.safetensors
+embeddings_cache/
+
+# CloudWatch Logs (local cache)
+cloudwatch_logs/
+
+# Sentry
+.sentryclirc

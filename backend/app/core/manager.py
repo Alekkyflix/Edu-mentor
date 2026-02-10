@@ -1,41 +1,79 @@
-from typing import Dict, Any, Optional
 import os
 import yaml
 from pathlib import Path
-from backend.app.core.strands_sdk import StrandsClient
+from backend.app.core.models import ModelRegistry, NovaModels
 from backend.app.models.state import LearningState
+from backend.app.core.state_manager import StateManager
+from backend.app.agents.orchestrator import OrchestratorAgent
 
 class EduMentorManager:
     """
     Central Manager for EduMentor AI.
-    Handles AWS Strands SDK initialization, Agent Routing, and State Management.
+    
+    Orchestrates the hierarchical multi-agent system:
+    - Initializes AWS Strands SDK client
+    - Manages learning state and student context
+    - Routes requests between Orchestrator, Sonic, and Instigator agents
+    
+    This class serves as the main entry point for all student interactions.
+    
+    Attributes:
+        project_root: Path to project root directory
+        client: StrandsClient instance for Bedrock communication
+        state: LearningState model tracking student progress
+        state_manager: StateManager wrapping state logic
+        orchestrator_logic: OrchestratorAgent handling routing decisions
+    
+    Example:
+        >>> manager = EduMentorManager("/path/to/project")
+        >>> response = manager.process_input("Help me with fractions")
+        >>> print(response)
     """
     def __init__(self, project_root: str):
         self.project_root = project_root
-        self.client = StrandsClient(project_root)
+        self.client = ModelRegistry.initialize_client(project_root)
+        
+        # Initialize Core State
         self.state = LearningState(student_id="student_001")
+        self.state_manager = StateManager(self.state)
+        
+        # Initialize Agents & Prompts
         self._initialize_agents()
+        
+        # Initialize Logic Component
+        self.orchestrator_logic = OrchestratorAgent(self.client, self.state_manager)
 
     def _initialize_agents(self):
         """
-        Loads prompts from config and registers agents.
+        Loads prompts from config and registers agents using centralized Model Registry.
         """
-        config_path = os.path.join(self.project_root, "backend/configs/orchestrator_prompts.yaml")
-        with open(config_path, 'r') as f:
-            prompts = yaml.safe_load(f)["prompts"]
+        # Load Prompts & Logic
+        prompts_path = os.path.join(self.project_root, "backend/configs/orchestrator_prompts.yaml")
+        logic_path = os.path.join(self.project_root, "backend/configs/logic.yaml")
+        
+        try:
+            with open(prompts_path, 'r') as f:
+                prompts = yaml.safe_load(f)["prompts"]
+                
+            with open(logic_path, 'r') as f:
+                logic = yaml.safe_load(f)["prompt_logic"]
+        except FileNotFoundError:
+            print("[Manager] Config files not found. Using defaults.")
+            return
 
         # 1. Orchestrator (Nova Lite)
         self.client.register_agent(
             name="orchestrator",
-            model_id="amazon.nova-lite-v1:0",
+            model_id=NovaModels.ORCHESTRATOR.value,
             prompt_content=prompts["orchestrator"]["system"],
             role="router"
         )
         
         # 2. Sonic (Conversationalist)
+        # TODO: Dynamically inject logic ("Rule of Three") here
         self.client.register_agent(
             name="sonic",
-            model_id="amazon.nova-sonic-v1:0",
+            model_id=NovaModels.CONVERSATIONALIST.value,
             prompt_content=prompts["sonic"]["persona"],
             role="conversational"
         )
@@ -43,35 +81,38 @@ class EduMentorManager:
         # 3. Instigator (Act)
         self.client.register_agent(
             name="instigator",
-            model_id="amazon.nova-act-v1:0",
+            model_id=NovaModels.INSTIGATOR.value,
             prompt_content=prompts["instigator"]["system"],
             role="challenger"
         )
 
     def process_input(self, user_input: str) -> str:
         """
-        Main Event Loop: Input -> Routing -> Agent -> Output -> Telemetry
+        Main Event Loop: Input -> Orchestrator Class -> Agent -> Output
+        
+        Processes student input through the hierarchical agent system:
+        1. Input is sent to Orchestrator
+        2. Orchestrator analyzes struggle score and context
+        3. Routes to Sonic (support) or Instigator (challenge)
+        4. Returns agent response
+        
+        Args:
+            user_input: Student's message (text or transcribed voice)
+            
+        Returns:
+            Agent response text (ready for voice synthesis or text display)
+            
+        Raises:
+            TimeoutError: If Bedrock API times out
+            ValueError: If orchestrator routing fails
         """
-        # 0. Check Telemetry (Cognitive Friction)
-        if self.state.frustration_level > 0.8:
-            # Too much struggle -> force hint via Sonic
-            return self.client.invoke_agent("sonic", "Student is frustrated. Provide emotional support and a hint.")
-            
-        # 1. Orchestrate
-        # In a real implementation, we would call the orchestrator model to decide.
-        # For simulation, we use the logic from the prompt/previous implementation.
-        target_agent = "sonic"
-        
-        if "?" in user_input and len(user_input) > 20:
-             target_agent = "instigator"
-        elif "check" in user_input.lower():
-             target_agent = "instigator"
-             
-        # 2. Update State (Simplistic)
-        if target_agent == "instigator":
-            self.state.struggle_score += 1
-            
-        # 3. Invoke Agent
-        response = self.client.invoke_agent(target_agent, user_input, self.state.dict())
-        
-        return response
+        try:
+            # Checks for cognitive friction thresholds are handled inside OrchestratorAgent.process()
+            response = self.orchestrator_logic.process(user_input)
+            return response
+        except TimeoutError as e:
+            print(f"[Manager] Bedrock timeout: {e}")
+            return "Pole, I'm thinking a bit slowly. Can you repeat that?"
+        except Exception as e:
+            print(f"[Manager] Error processing input: {e}")
+            return "Sorry, I'm having technical difficulties. Let's try again."

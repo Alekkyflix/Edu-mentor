@@ -1,4 +1,4 @@
-from edumentor_ai.core.schema import AgentInput, AgentOutput, AgentType
+from ..core.schema import AgentInput, AgentOutput, AgentType
 
 class ConversationalistAgent:
     """

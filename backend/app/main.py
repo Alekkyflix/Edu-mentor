@@ -6,7 +6,7 @@ import sys
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from backend.app.core.manager import EduMentorManager
+from .core.manager import EduMentorManager
 
 app = FastAPI(title="EduMentor AI Backend", version="1.0")
 

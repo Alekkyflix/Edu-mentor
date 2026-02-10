@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import json
 
 class EmbeddingService:
@@ -29,7 +29,7 @@ class EmbeddingService:
         return [0.5] * 10
 
 
-    def store_memory(self, session_id: str, text: str, metadata: Dict[str, Any] = None):
+    def store_memory(self, session_id: str, text: str, metadata: Optional[Dict[str, Any]] = None):
         """
         Stores a memory snippet with its embedding.
         """

@@ -1,20 +1,12 @@
-from dataclasses import dataclass, field
 from typing import Dict, Any, List
-
-@dataclass
-class LearningState:
-    student_id: str
-    current_topic: str = "Unset"
-    frustration_level: float = 0.0 # 0.0 to 1.0
-    struggle_score: int = 0
-    session_history: List[str] = field(default_factory=list)
+from backend.app.models.state import LearningState
 
 class StateManager:
     """
-    Manages the 'Learning State' schema.
+    Manages the 'Learning State' logic, wrapping the Pydantic data model.
     """
-    def __init__(self):
-        self._state = LearningState(student_id="student_001")
+    def __init__(self, state: LearningState):
+        self._state = state
         
     def update_frustration(self, delta: float):
         self._state.frustration_level = max(0.0, min(1.0, self._state.frustration_level + delta))
@@ -28,5 +20,6 @@ class StateManager:
         return {
             "topic": self._state.current_topic,
             "frustration": self._state.frustration_level,
-            "struggle": self._state.struggle_score
+            "struggle": self._state.struggle_score,
+            "history_len": len(self._state.session_history)
         }

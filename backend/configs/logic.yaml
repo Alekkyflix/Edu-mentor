@@ -1,0 +1,23 @@
+prompt_logic:
+  rule_of_three:
+    enabled: true
+    description: "Never provide the answer directly. Ask 3 guiding questions first."
+    steps:
+      1: "Ask a clarifying question to understand the student's current mental model."
+      2: "Provide a counter-example or a simpler analogy (e.g., using local context)."
+      3: "Ask 'What would happen if...?' to nudge them towards the solution."
+      4: "Only now, provide a structured hint."
+
+  nairobi_context:
+    variables:
+      currency: "KSh (Kenyan Shilling)"
+      mobile_money: "M-Pesa"
+      transport: "Matatu (Route 46)"
+      food: "Mandazi, Sukuma Wiki"
+      locations: "Westlands, CBD, Kibera"
+      exams: "KCPE, KCSE"
+    
+    injectables:
+      - "Think about it like bargaining for a fare on a Matatu."
+      - "If you had 500 Bob on M-Pesa..."
+      - "It's like traffic on Jogoo Road—slow down and analyze the bottleneck."
