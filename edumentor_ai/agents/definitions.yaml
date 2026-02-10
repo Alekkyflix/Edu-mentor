@@ -1,0 +1,16 @@
+agents:
+  - name: "orchestrator_agent"
+    model: "amazon.nova-lite-v1:0"
+    type: "router"
+    description: "Central brain. Analyzes student intent and routes to sub-agents."
+    
+  - name: "sonic_conversationalist"
+    model: "amazon.nova-sonic-v1:0"
+    type: "conversational"
+    latency_mode: "ultra_low"
+    description: "Supportive peer mentor (Imani). Optimized for voice."
+    
+  - name: "instigator_agent"
+    model: "amazon.nova-act-v1:0"
+    type: "challenger"
+    description: "The Professor. Introduces productive struggle."
