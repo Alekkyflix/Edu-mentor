@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=Caveat:wght@400;700&display=swap');
+
+@layer base {
+  :root {
+    --nairobi-sunset: #FF6B35;
+    --nairobi-teal: #006D77;
+    --nairobi-yellow: #FFD23F;
+    --nairobi-charcoal: #1A1A2E;
+  }
+
+  body {
+    @apply bg-nairobi-charcoal text-white font-body;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold;
+  }
+}
+
+@layer components {
+  /* Button styles */
+  .btn-primary {
+    @apply bg-nairobi-sunset hover:bg-nairobi-coral text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply bg-nairobi-teal hover:bg-nairobi-sage text-white font-semibold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .btn-outline {
+    @apply border-2 border-nairobi-sunset text-nairobi-sunset hover:bg-nairobi-sunset hover:text-white font-semibold py-3 px-6 rounded-full transition-all duration-300;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-700/50 hover:border-nairobi-sunset/50 transition-all duration-300;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-nairobi-sunset/20 to-nairobi-teal/20 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-nairobi-sunset/30;
+  }
+
+  /* Chat bubble styles */
+  .chat-bubble-user {
+    @apply bg-nairobi-sunset text-white rounded-2xl rounded-br-sm px-4 py-3 max-w-[80%] shadow-lg;
+  }
+
+  .chat-bubble-agent {
+    @apply bg-gray-700 text-white rounded-2xl rounded-bl-sm px-4 py-3 max-w-[80%] shadow-lg;
+  }
+
+  /* Struggle meter */
+  .struggle-meter {
+    @apply relative w-full h-4 bg-gray-700 rounded-full overflow-hidden;
+  }
+
+  .struggle-meter-fill {
+    @apply h-full bg-gradient-to-r from-struggle-low via-struggle-medium to-struggle-high transition-all duration-500;
+  }
+
+  /* Achievement badge */
+  .achievement-badge {
+    @apply bg-gradient-to-br from-nairobi-yellow/80 to-nairobi-sunset/80 p-4 rounded-xl shadow-lg border-2 border-nairobi-yellow/50 hover:scale-110 transition-transform duration-300 cursor-pointer;
+  }
+
+  /* XP bar */
+  .xp-bar {
+    @apply relative w-full h-6 bg-gray-700 rounded-full overflow-hidden shadow-inner;
+  }
+
+  .xp-bar-fill {
+    @apply h-full bg-gradient-to-r from-nairobi-teal to-nairobi-sage rounded-full transition-all duration-700 ease-out;
+  }
+
+  /* Glass morphism */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+
+  /* Glow effect */
+  .glow {
+    @apply shadow-[0_0_30px_rgba(255,107,53,0.5)];
+  }
+
+  .glow-teal {
+    @apply shadow-[0_0_30px_rgba(0,109,119,0.5)];
+  }
+
+  /* Pulse animation for voice button */
+  .pulse-ring {
+    @apply absolute inset-0 rounded-full bg-nairobi-sunset opacity-75 animate-ping;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-nairobi-sunset to-nairobi-yellow;
+  }
+
+  .text-gradient-teal {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-nairobi-teal to-nairobi-sage;
+  }
+
+  /* Scrollbar customization */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-800;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-nairobi-sunset rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-nairobi-coral;
+  }
+}
+
+/* Custom animations */
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.3s ease-out forwards;
+}
+
+/* Confetti particles */
+.confetti-particle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: var(--nairobi-yellow);
+  animation: confetti 3s ease-out forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
