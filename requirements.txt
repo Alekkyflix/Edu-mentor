@@ -22,6 +22,7 @@ httpx==0.26.0  # HTTP client for testing
 # Monitoring & Logging
 watchtower==3.0.1  # CloudWatch logging
 sentry-sdk[fastapi]==1.40.0  # Error tracking
+prometheus-fastapi-instrumentator==6.0.0  # Prometheus Metrics
 
 # Development & Testing
 pytest==7.4.4
