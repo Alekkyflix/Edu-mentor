@@ -29,7 +29,7 @@ This document provides a step-by-step walkthrough for configuring the **EduMento
 5.  Select **Command Line Interface (CLI)**.
 6.  **IMPORTANT**: Download the `.csv` file or copy the **Access Key ID** and **Secret Access Key** immediately. You cannot see the secret again.
 
-### Step 1.3: Enable Bedrock Models (CRITICAL)
+"### Step 1.3: Enable Bedrock Models (CRITICAL)
 
 **Why?** Amazon Nova models are not enabled by default.
 
