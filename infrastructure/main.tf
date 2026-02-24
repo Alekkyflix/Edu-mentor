@@ -7,15 +7,15 @@ terraform {
   }
   backend "s3" {
     # Replace with your bucket details
-    # bucket = "edumentor-terraform-state"
-    # key    = "prod/terraform.tfstate"
-    # region = "us-east-1"
+    bucket = "edumentor-bucket"
+    key    = "prod/terraform.tfstate"
+    region = "us-east-1"
   }
 }
 
 provider "aws" {
   region = var.aws_region
-  
+
   default_tags {
     tags = {
       Project     = "EduMentor"
@@ -27,33 +27,33 @@ provider "aws" {
 
 module "networking" {
   source = "./modules/networking"
-  
+
   vpc_cidr    = var.vpc_cidr
   environment = var.environment
 }
 
 module "database" {
   source = "./modules/database"
-  
-  vpc_id              = module.networking.vpc_id
-  private_subnet_ids  = module.networking.private_subnet_ids
-  db_name             = "edumentor"
-  db_username         = var.db_username
-  db_password         = var.db_password
-  environment         = var.environment
-  security_group_id   = module.networking.db_sg_id
+
+  vpc_id             = module.networking.vpc_id
+  private_subnet_ids = module.networking.private_subnet_ids
+  db_name            = "edumentor"
+  db_username        = var.db_username
+  db_password        = var.db_password
+  environment        = var.environment
+  security_group_id  = module.networking.db_sg_id
 }
 
 module "backend" {
   source = "./modules/backend"
-  
-  vpc_id              = module.networking.vpc_id
-  public_subnet_ids   = module.networking.public_subnet_ids
-  private_subnet_ids  = module.networking.private_subnet_ids
-  app_security_group  = module.networking.app_sg_id
-  db_endpoint         = module.database.endpoint
-  environment         = var.environment
-  image_tag           = var.backend_image_tag
+
+  vpc_id             = module.networking.vpc_id
+  public_subnet_ids  = module.networking.public_subnet_ids
+  private_subnet_ids = module.networking.private_subnet_ids
+  app_security_group = module.networking.app_sg_id
+  db_endpoint        = module.database.endpoint
+  environment        = var.environment
+  image_tag          = var.backend_image_tag
 }
 
 module "frontend" {
@@ -65,7 +65,7 @@ module "frontend" {
   app_security_group = module.networking.app_sg_id
   environment        = var.environment
   image_tag          = var.frontend_image_tag
-  
+
   # Pass outputs from backend module
   cluster_id         = module.backend.cluster_id
   execution_role_arn = module.backend.execution_role_arn

@@ -96,9 +96,19 @@ secrets/
 *.crt
 
 # Terraform (Infrastructure)
-infrastructure/.terraform/
-infrastructure/*.tfstate
-infrastructure/*.tfstate.backup
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*tfplan*
+
 # infrastructure/.terraform.lock.hcl  <-- Commented out to allow committing lock file (Best Practice)
 
 # Docker

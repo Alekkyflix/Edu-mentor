@@ -123,7 +123,7 @@ terraform destroy
 During `terraform plan` or `terraform apply`, Terraform might ask you for variables like `db_password` or `environment`.
 
 Instead of typing them manually every time, create a file named `terraform.tfvars` inside the `infrastructure` folder:
-
+w
 **`infrastructure/terraform.tfvars`**
 
 ```hcl
