@@ -94,6 +94,7 @@ secrets/
 *.pem
 *.key
 *.crt
+.secrets.baseline
 
 # Terraform (Infrastructure)
 **/.terraform/
@@ -115,6 +116,7 @@ override.tf.json
 docker-compose.override.yml
 
 # Frontend (Node.js / Next.js)
+node_modules/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
