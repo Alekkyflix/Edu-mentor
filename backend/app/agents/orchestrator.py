@@ -92,5 +92,4 @@ class OrchestratorAgent:
             return "Ngoja kidogo... Let me think about that. Can you rephrase?"
         except Exception as e:
             print(f"[Orchestrator] Error in routing: {e}")
-            # Safe fallback
-            return "Sasa! I'm here to help. What do you need?"
+            raise e

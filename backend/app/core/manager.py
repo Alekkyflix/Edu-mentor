@@ -115,4 +115,4 @@ class EduMentorManager:
             return "Pole, I'm thinking a bit slowly. Can you repeat that?"
         except Exception as e:
             print(f"[Manager] Error processing input: {e}")
-            return "Sorry, I'm having technical difficulties. Let's try again."
+            raise e

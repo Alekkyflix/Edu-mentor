@@ -2,368 +2,502 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Sparkles, Trophy, Zap, Target, MessageCircle, TrendingUp } from 'lucide-react';
+import { Sparkles, Trophy, Zap, Target, MessageCircle, TrendingUp, ArrowRight, CheckCircle2 } from 'lucide-react';
+
+const FEATURES = [
+    {
+        icon: <Trophy size={28} />,
+        title: 'Gamified XP System',
+        desc: 'Earn XP for every question you answer, unlock achievements, and climb the Nairobi leaderboard.',
+        accent: 'var(--xp-gold)',
+    },
+    {
+        icon: <Target size={28} />,
+        title: 'Productive Struggle',
+        desc: "The Professor doesn't hand you answers. You're guided through discovery — the real way to learn.",
+        accent: 'var(--accent)',
+    },
+    {
+        icon: <TrendingUp size={28} />,
+        title: 'Progress Tracking',
+        desc: 'Visualise your mastery per topic, weekly streaks, and struggle scores over time.',
+        accent: 'var(--accent-2)',
+    },
+];
+
+const SUBJECTS = ['Mathematics', 'Science', 'English', 'Kiswahili', 'History', 'Geography', 'Physics', 'Chemistry'];
 
 export default function HomePage() {
     return (
-        <div className="min-h-screen bg-nairobi-charcoal overflow-hidden">
-            {/* Animated background */}
-            <div className="fixed inset-0 opacity-20">
-                <div className="absolute top-20 left-10 w-72 h-72 bg-nairobi-sunset rounded-full blur-[128px] animate-pulse-slow"></div>
-                <div className="absolute bottom-20 right-10 w-96 h-96 bg-nairobi-teal rounded-full blur-[128px] animate-pulse-slow animation-delay-2000"></div>
+        <div
+            style={{
+                minHeight: '100vh',
+                background: 'var(--bg-base)',
+                color: 'var(--text-primary)',
+                overflowY: 'auto',
+                overflowX: 'hidden',
+            }}
+        >
+            {/* ── Ambient blobs ─────────────────────────────────────────────── */}
+            <div aria-hidden style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+                <div
+                    style={{
+                        position: 'absolute', top: '-10%', right: '-5%',
+                        width: 600, height: 600,
+                        background: 'radial-gradient(circle, rgba(66,133,244,0.12) 0%, transparent 70%)',
+                        borderRadius: '50%',
+                    }}
+                />
+                <div
+                    style={{
+                        position: 'absolute', bottom: '10%', left: '-5%',
+                        width: 500, height: 500,
+                        background: 'radial-gradient(circle, rgba(129,201,149,0.1) 0%, transparent 70%)',
+                        borderRadius: '50%',
+                    }}
+                />
             </div>
 
-            {/* Navigation */}
-            <nav className="relative z-10 flex justify-between items-center px-8 py-6">
+            {/* ── Nav ───────────────────────────────────────────────────────── */}
+            <motion.nav
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                    position: 'sticky', top: 0, zIndex: 50,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0 32px', height: 60,
+                    background: 'rgba(30,31,32,0.8)',
+                    backdropFilter: 'blur(12px)',
+                    borderBottom: '1px solid var(--border)',
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div
+                        style={{
+                            width: 28, height: 28, borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #4285f4, #81c995)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}
+                    >
+                        <Sparkles size={14} color="#fff" />
+                    </div>
+                    <span
+                        style={{
+                            fontFamily: "'Google Sans', sans-serif",
+                            fontSize: '1rem',
+                            fontWeight: 600,
+                            color: 'var(--text-primary)',
+                        }}
+                    >
+                        EduMentor AI
+                    </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Link href="/dashboard" className="nav-link" style={{ padding: '6px 12px' }}>
+                        Dashboard
+                    </Link>
+                    <Link href="/chat" className="btn-gem">
+                        Start Learning
+                        <ArrowRight size={15} />
+                    </Link>
+                </div>
+            </motion.nav>
+
+            {/* ── Hero ──────────────────────────────────────────────────────── */}
+            <section
+                style={{
+                    position: 'relative', zIndex: 1,
+                    maxWidth: 760, margin: '0 auto',
+                    padding: '96px 24px 64px',
+                    textAlign: 'center',
+                }}
+            >
+                {/* Badge */}
                 <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-2"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 24 }}
                 >
-                    <Sparkles className="text-nairobi-yellow w-8 h-8" />
-                    <span className="text-2xl font-display font-bold text-gradient">EduMentor AI</span>
+                    <span
+                        style={{
+                            fontSize: '12px', fontWeight: 600,
+                            padding: '5px 14px', borderRadius: 9999,
+                            background: 'var(--brand-soft)',
+                            color: 'var(--accent)',
+                            border: '1px solid rgba(138,180,248,.25)',
+                            letterSpacing: '0.04em',
+                        }}
+                    >
+                        🔥 Built for Nairobi students
+                    </span>
                 </motion.div>
 
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="flex gap-4"
+                {/* Headline */}
+                <motion.h1
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    style={{
+                        fontFamily: "'Google Sans', sans-serif",
+                        fontSize: 'clamp(2.2rem, 5vw, 3.5rem)',
+                        fontWeight: 700,
+                        lineHeight: 1.15,
+                        marginBottom: 20,
+                        letterSpacing: '-0.02em',
+                    }}
                 >
-                    <Link href="/chat" className="btn-outline">
-                        Start Learning
+                    Learn smarter with{' '}
+                    <span className="text-gradient">AI-powered tutoring</span>
+                    <br />designed for <em>you</em>.
+                </motion.h1>
+
+                {/* Subhead */}
+                <motion.p
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    style={{
+                        fontSize: '1.0625rem',
+                        lineHeight: 1.7,
+                        color: 'var(--text-secondary)',
+                        marginBottom: 36,
+                        maxWidth: 560,
+                        margin: '0 auto 36px',
+                    }}
+                >
+                    Meet <strong style={{ color: 'var(--text-primary)' }}>Imani</strong>, your AI mentor who understands Kenyan context — from M-Pesa maths to matatu logic. Gamified, adaptive, and always poa.
+                </motion.p>
+
+                {/* CTA */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                    style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}
+                >
+                    <Link href="/chat" className="btn-gem" style={{ fontSize: '0.9375rem', padding: '12px 28px' }}>
+                        Twende Kazi 🚀
+                        <ArrowRight size={16} />
+                    </Link>
+                    <Link href="/dashboard" className="btn-ghost" style={{ fontSize: '0.9375rem', padding: '12px 24px' }}>
+                        View Dashboard
                     </Link>
                 </motion.div>
-            </nav>
 
-            {/* Hero Section */}
-            <section className="relative z-10 max-w-7xl mx-auto px-8 py-20">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
-                    {/* Left: Text Content */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                    >
-                        <div className="inline-block px-4 py-2 bg-nairobi-sunset/20 border border-nairobi-sunset/50 rounded-full mb-6">
-                            <span className="text-nairobi-yellow text-sm font-semibold">🔥 Sasa! Ready to Learn?</span>
-                        </div>
-
-                        <h1 className="text-6xl font-display font-bold mb-6 leading-tight">
-                            Learn Smarter, <br />
-                            <span className="text-gradient">Not Harder</span>
-                        </h1>
-
-                        <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-                            Meet <span className="text-nairobi-yellow font-semibold">Imani</span>, your AI tutor who
-                            knows Nairobi. From M-Pesa math to matatu logic—we make learning <span className="italic">poa</span>!
-                        </p>
-
-                        <div className="flex gap-4 mb-12">
-                            <Link href="/chat" className="btn-primary group">
-                                Twende Kazi! 🚀
-                                <Zap className="inline ml-2 group-hover:animate-bounce" size={20} />
-                            </Link>
-                            <button className="btn-secondary">
-                                Watch Demo
-                            </button>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="grid grid-cols-3 gap-6">
-                            <div className="text-center">
-                                <div className="text-3xl font-bold text-nairobi-yellow">10K+</div>
-                                <div className="text-sm text-gray-400">Students</div>
+                {/* Stats row */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    style={{
+                        display: 'flex', gap: 40, justifyContent: 'center',
+                        marginTop: 56,
+                        borderTop: '1px solid var(--border)',
+                        paddingTop: 32,
+                    }}
+                >
+                    {[
+                        { value: '10K+', label: 'Students' },
+                        { value: '95%',  label: 'Success Rate' },
+                        { value: '24/7', label: 'Available' },
+                    ].map(s => (
+                        <div key={s.label} style={{ textAlign: 'center' }}>
+                            <div style={{
+                                fontFamily: "'Google Sans', sans-serif",
+                                fontSize: '1.75rem', fontWeight: 700,
+                                color: 'var(--text-primary)',
+                            }}>
+                                {s.value}
                             </div>
-                            <div className="text-center">
-                                <div className="text-3xl font-bold text-nairobi-sage">95%</div>
-                                <div className="text-sm text-gray-400">Success Rate</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-3xl font-bold text-nairobi-coral">24/7</div>
-                                <div className="text-sm text-gray-400">Available</div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 4 }}>
+                                {s.label}
                             </div>
                         </div>
-                    </motion.div>
-
-                    {/* Right: Animated UI Preview */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4 }}
-                        className="relative"
-                    >
-                        {/* Floating achievement badge */}
-                        <motion.div
-                            animate={{ y: [0, -10, 0] }}
-                            transition={{ duration: 3, repeat: Infinity }}
-                            className="absolute -top-6 -left-6 z-20"
-                        >
-                            <div className="achievement-badge">
-                                <Trophy className="text-nairobi-charcoal" size={24} />
-                            </div>
-                        </motion.div>
-
-                        {/* Main phone mockup */}
-                        <div className="relative w-full max-w-sm mx-auto">
-                            {/* Phone frame */}
-                            <div className="glass rounded-[3rem] p-4 shadow-2xl glow">
-                                {/* Screen */}
-                                <div className="bg-nairobi-charcoal rounded-[2.5rem] overflow-hidden">
-                                    {/* Status bar */}
-                                    <div className="flex justify-between items-center px-6 py-3 bg-gray-900">
-                                        <span className="text-xs">9:41</span>
-                                        <div className="flex gap-1">
-                                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                                        </div>
-                                    </div>
-
-                                    {/* Chat header */}
-                                    <div className="flex items-center gap-3 px-6 py-4 bg-gray-900/50 border-b border-gray-800">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-nairobi-sunset to-nairobi-coral flex items-center justify-center">
-                                            <span className="text-lg">😊</span>
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="font-semibold">Imani</div>
-                                            <div className="text-xs text-gray-400">Your AI Mentor</div>
-                                        </div>
-                                        {/* Struggle meter mini */}
-                                        <div className="flex gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-struggle-low"></div>
-                                            <div className="w-2 h-2 rounded-full bg-struggle-medium"></div>
-                                            <div className="w-2 h-2 rounded-full bg-gray-700"></div>
-                                        </div>
-                                    </div>
-
-                                    {/* Chat messages */}
-                                    <div className="p-6 space-y-4 h-96 overflow-y-auto custom-scrollbar">
-                                        {/* Agent message */}
-                                        <motion.div
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.6 }}
-                                            className="flex gap-2"
-                                        >
-                                            <div className="chat-bubble-agent animate-slideInUp">
-                                                <p className="text-sm">Sasa! Ready for today's challenge? 🔥</p>
-                                                <span className="text-xs text-gray-400 block mt-1">2:15 PM</span>
-                                            </div>
-                                        </motion.div>
-
-                                        {/* User message */}
-                                        <motion.div
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.8 }}
-                                            className="flex gap-2 justify-end"
-                                        >
-                                            <div className="chat-bubble-user animate-slideInUp">
-                                                <p className="text-sm">Help me with fractions</p>
-                                                <span className="text-xs text-white/70 block mt-1">2:16 PM</span>
-                                            </div>
-                                        </motion.div>
-
-                                        {/* Agent typing */}
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 1 }}
-                                            className="flex gap-2"
-                                        >
-                                            <div className="chat-bubble-agent">
-                                                <div className="flex gap-1">
-                                                    <motion.div
-                                                        animate={{ scale: [1, 1.3, 1] }}
-                                                        transition={{ duration: 1, repeat: Infinity, delay: 0 }}
-                                                        className="w-2 h-2 bg-nairobi-sunset rounded-full"
-                                                    />
-                                                    <motion.div
-                                                        animate={{ scale: [1, 1.3, 1] }}
-                                                        transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
-                                                        className="w-2 h-2 bg-nairobi-yellow rounded-full"
-                                                    />
-                                                    <motion.div
-                                                        animate={{ scale: [1, 1.3, 1] }}
-                                                        transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
-                                                        className="w-2 h-2 bg-nairobi-teal rounded-full"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </motion.div>
-
-                                        {/* XP Notification */}
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 1.2 }}
-                                            className="mx-auto w-fit"
-                                        >
-                                            <div className="bg-gradient-to-r from-nairobi-yellow/20 to-nairobi-sunset/20 border border-nairobi-yellow/50 rounded-xl px-4 py-2 flex items-center gap-2">
-                                                <Sparkles size={16} className="text-nairobi-yellow" />
-                                                <span className="text-sm font-semibold">+50 XP</span>
-                                            </div>
-                                        </motion.div>
-                                    </div>
-
-                                    {/* Input area */}
-                                    <div className="p-4 bg-gray-900/50 border-t border-gray-800">
-                                        <div className="flex gap-2 items-center">
-                                            {/* Voice button */}
-                                            <motion.button
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                className="relative w-12 h-12 rounded-full bg-nairobi-sunset flex items-center justify-center shadow-lg"
-                                            >
-                                                <div className="pulse-ring"></div>
-                                                <MessageCircle size={20} />
-                                            </motion.button>
-
-                                            {/* Text input */}
-                                            <div className="flex-1 bg-gray-800 rounded-full px-4 py-2 text-sm text-gray-400">
-                                                Type or speak...
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Floating streak indicator */}
-                        <motion.div
-                            animate={{ y: [0, -10, 0] }}
-                            transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                            className="absolute -bottom-6 -right-6 z-20"
-                        >
-                            <div className="card-gradient p-4">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-2xl">🔥</span>
-                                    <div>
-                                        <div className="text-sm font-semibold">5 Day Streak!</div>
-                                        <div className="text-xs text-gray-400">Keep it up!</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                </div>
+                    ))}
+                </motion.div>
             </section>
 
-            {/* Features Section */}
-            <section className="relative z-10 max-w-7xl mx-auto px-8 py-20">
+            {/* ── Features ──────────────────────────────────────────────────── */}
+            <section
+                style={{
+                    position: 'relative', zIndex: 1,
+                    maxWidth: 1100, margin: '0 auto',
+                    padding: '60px 24px',
+                }}
+            >
                 <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-center mb-16"
+                    style={{ textAlign: 'center', marginBottom: 48 }}
                 >
-                    <h2 className="text-4xl font-display font-bold mb-4">
-                        Why <span className="text-gradient">EduMentor AI</span>?
+                    <h2 style={{
+                        fontFamily: "'Google Sans', sans-serif",
+                        fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                        fontWeight: 700, marginBottom: 12,
+                    }}>
+                        Why EduMentor AI?
                     </h2>
-                    <p className="text-xl text-gray-300">Built for Nairobi students, by people who understand you</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
+                        Tools that actually understand how Kenyan students learn best.
+                    </p>
                 </motion.div>
 
-                <div className="grid md:grid-cols-3 gap-8">
-                    {[
-                        {
-                            icon: <Trophy size={32} />,
-                            title: "Gamified Learning",
-                            description: "Earn XP, unlock achievements, and compete on leaderboards. Learning has never been this fun!",
-                            color: "nairobi-yellow"
-                        },
-                        {
-                            icon: <Target size={32} />,
-                            title: "Productive Struggle",
-                            description: "The Professor challenges you at the right moment. We don't give answers—we help you discover them.",
-                            color: "nairobi-sunset"
-                        },
-                        {
-                            icon: <TrendingUp size={32} />,
-                            title: "Track Progress",
-                            description: "See your struggle score, topic mastery, and growth over time. Know exactly where you stand.",
-                            color: "nairobi-teal"
-                        }
-                    ].map((feature, i) => (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+                    {FEATURES.map((f, i) => (
                         <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 30 }}
+                            key={f.title}
+                            initial={{ opacity: 0, y: 24 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: i * 0.1 }}
-                            whileHover={{ scale: 1.05 }}
-                            className="card hover:glow cursor-pointer"
+                            transition={{ delay: i * 0.08 }}
+                            className="feat-card"
                         >
-                            <div className={`w-16 h-16 rounded-2xl bg-${feature.color}/20 flex items-center justify-center mb-4 text-${feature.color}`}>
-                                {feature.icon}
+                            <div
+                                style={{
+                                    width: 52, height: 52, borderRadius: 14,
+                                    background: `${f.accent}18`,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    marginBottom: 16, color: f.accent,
+                                }}
+                            >
+                                {f.icon}
                             </div>
-                            <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                            <p className="text-gray-400">{feature.description}</p>
+                            <h3 style={{ fontSize: '1.0625rem', fontWeight: 600, marginBottom: 8 }}>{f.title}</h3>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.65 }}>
+                                {f.desc}
+                            </p>
                         </motion.div>
                     ))}
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="relative z-10 max-w-4xl mx-auto px-8 py-20">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    className="card-gradient text-center p-12"
+            {/* ── Subjects strip ────────────────────────────────────────────── */}
+            <section
+                style={{
+                    position: 'relative', zIndex: 1,
+                    padding: '32px 24px',
+                    borderTop: '1px solid var(--border)',
+                    borderBottom: '1px solid var(--border)',
+                    background: 'var(--bg-surface)',
+                }}
+            >
+                <div
+                    style={{
+                        maxWidth: 900, margin: '0 auto',
+                        display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center',
+                    }}
                 >
-                    <h2 className="text-4xl font-display font-bold mb-4">
-                        Ready to Level Up?
+                    {SUBJECTS.map(s => (
+                        <div
+                            key={s}
+                            style={{
+                                padding: '6px 16px', borderRadius: 9999,
+                                border: '1px solid var(--border-strong)',
+                                fontSize: '13px', color: 'var(--text-secondary)',
+                                display: 'flex', alignItems: 'center', gap: 6,
+                            }}
+                        >
+                            <CheckCircle2 size={13} color="var(--accent-2)" />
+                            {s}
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* ── Gemini-style chat preview ──────────────────────────────────── */}
+            <section
+                style={{
+                    position: 'relative', zIndex: 1,
+                    maxWidth: 760, margin: '0 auto',
+                    padding: '72px 24px',
+                }}
+            >
+                <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="glass-card"
+                    style={{ padding: '0', overflow: 'hidden' }}
+                >
+                    {/* Mock top bar */}
+                    <div
+                        style={{
+                            padding: '14px 20px',
+                            borderBottom: '1px solid var(--border)',
+                            display: 'flex', alignItems: 'center', gap: 10,
+                        }}
+                    >
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #4285f4, #81c995)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Sparkles size={13} color="#fff" />
+                        </div>
+                        <span style={{ fontSize: '14px', fontWeight: 500 }}>Chat with Imani</span>
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent-2)', boxShadow: '0 0 5px var(--accent-2)' }} />
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Online</span>
+                        </div>
+                    </div>
+
+                    {/* Mock messages */}
+                    <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        {/* Agent message */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}
+                        >
+                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #4285f4, #8ab4f8)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <Sparkles size={13} color="#fff" />
+                            </div>
+                            <div style={{ background: 'var(--bg-hover)', borderRadius: '16px 16px 16px 4px', padding: '10px 14px', maxWidth: '75%' }}>
+                                <p style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+                                    Sasa! 🔥 Let's tackle fractions today. What part are you finding tricky?
+                                </p>
+                            </div>
+                        </motion.div>
+
+                        {/* User message */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.1 }}
+                            style={{ display: 'flex', justifyContent: 'flex-end' }}
+                        >
+                            <div style={{ background: 'var(--bg-active)', borderRadius: '16px 16px 4px 16px', padding: '10px 14px', maxWidth: '65%' }}>
+                                <p style={{ fontSize: '13.5px', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+                                    How do I add ½ + ⅓ without a calculator?
+                                </p>
+                            </div>
+                        </motion.div>
+
+                        {/* Agent response */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.2 }}
+                            style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}
+                        >
+                            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg, #4285f4, #8ab4f8)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <Sparkles size={13} color="#fff" />
+                            </div>
+                            <div style={{ fontSize: '13.5px', lineHeight: 1.7, color: 'var(--text-primary)', maxWidth: '75%' }}>
+                                Great question! Before I tell you the answer, think about this:
+                                when you split a mandazi into 2 equal pieces, each piece is ½. When you split another into 3 equal pieces, each piece is ⅓.
+                                How many pieces would you need to make them the same size? 🤔
+                            </div>
+                        </motion.div>
+
+                        {/* XP pop */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.85 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.35 }}
+                            style={{ display: 'flex', justifyContent: 'center' }}
+                        >
+                            <div className="xp-badge" style={{ padding: '6px 16px', fontSize: '12px' }}>
+                                ⚡ +25 XP — Productive struggle!
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* Mock input */}
+                    <div
+                        style={{
+                            padding: '12px 16px',
+                            borderTop: '1px solid var(--border)',
+                            display: 'flex', alignItems: 'center', gap: 10,
+                        }}
+                    >
+                        <div
+                            style={{
+                                flex: 1, background: 'var(--bg-hover)',
+                                borderRadius: 20, padding: '9px 16px',
+                                fontSize: '13px', color: 'var(--text-muted)',
+                                border: '1px solid var(--border)',
+                            }}
+                        >
+                            Ask Imani anything…
+                        </div>
+                        <div
+                            style={{
+                                width: 34, height: 34, borderRadius: '50%',
+                                background: 'var(--brand)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}
+                        >
+                            <MessageCircle size={15} color="#fff" />
+                        </div>
+                    </div>
+                </motion.div>
+            </section>
+
+            {/* ── CTA ───────────────────────────────────────────────────────── */}
+            <section
+                style={{
+                    position: 'relative', zIndex: 1,
+                    maxWidth: 640, margin: '0 auto',
+                    padding: '60px 24px 100px',
+                    textAlign: 'center',
+                }}
+            >
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                >
+                    <h2 style={{
+                        fontFamily: "'Google Sans', sans-serif",
+                        fontSize: 'clamp(1.6rem, 3.5vw, 2.5rem)',
+                        fontWeight: 700, marginBottom: 16,
+                    }}>
+                        Ready to level up?
                     </h2>
-                    <p className="text-xl text-gray-300 mb-8">
-                        Join 10,000+ Nairobi students learning smarter with AI
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: 32, fontSize: '1rem' }}>
+                        Join 10,000+ Nairobi students learning smarter with AI.
                     </p>
-                    <Link href="/chat" className="btn-primary inline-flex items-center gap-2 text-lg">
+                    <Link href="/chat" className="btn-gem" style={{ fontSize: '1rem', padding: '14px 32px' }}>
                         Start Your Journey 🚀
+                        <ArrowRight size={17} />
                     </Link>
                 </motion.div>
             </section>
 
-            {/* Footer */}
-            <footer className="relative z-10 border-t border-gray-800 mt-20">
-                <div className="max-w-7xl mx-auto px-8 py-12">
-                    <div className="grid md:grid-cols-4 gap-8">
-                        <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <Sparkles className="text-nairobi-yellow" />
-                                <span className="font-display font-bold text-xl">EduMentor AI</span>
-                            </div>
-                            <p className="text-gray-400 text-sm">
-                                Empowering Nairobi students with AI-powered learning.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 className="font-semibold mb-4">Product</h4>
-                            <ul className="space-y-2 text-sm text-gray-400">
-                                <li><Link href="/chat" className="hover:text-nairobi-sunset transition">Chat</Link></li>
-                                <li><Link href="/dashboard" className="hover:text-nairobi-sunset transition">Dashboard</Link></li>
-                                <li><Link href="/achievements" className="hover:text-nairobi-sunset transition">Achievements</Link></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-semibold mb-4">Company</h4>
-                            <ul className="space-y-2 text-sm text-gray-400">
-                                <li><a href="#" className="hover:text-nairobi-sunset transition">About</a></li>
-                                <li><a href="#" className="hover:text-nairobi-sunset transition">Blog</a></li>
-                                <li><a href="#" className="hover:text-nairobi-sunset transition">Careers</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-semibold mb-4">Legal</h4>
-                            <ul className="space-y-2 text-sm text-gray-400">
-                                <li><a href="#" className="hover:text-nairobi-sunset transition">Privacy</a></li>
-                                <li><a href="#" className="hover:text-nairobi-sunset transition">Terms</a></li>
-                                <li><a href="#" className="hover:text-nairobi-sunset transition">Contact</a></li>
-                            </ul>
-                        </div>
+            {/* ── Footer ────────────────────────────────────────────────────── */}
+            <footer
+                style={{
+                    borderTop: '1px solid var(--border)',
+                    padding: '28px 32px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    flexWrap: 'wrap', gap: 12,
+                    position: 'relative', zIndex: 1,
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'linear-gradient(135deg, #4285f4, #81c995)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Sparkles size={11} color="#fff" />
                     </div>
-                    <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-                        <p>© 2026 EduMentor AI. Built with ❤️ for Nairobi students.</p>
-                    </div>
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                        © 2026 EduMentor AI · Built with ❤️ for Nairobi students
+                    </span>
+                </div>
+                <div style={{ display: 'flex', gap: 24 }}>
+                    {['Chat', 'Dashboard', 'About', 'Privacy'].map(link => (
+                        <Link
+                            key={link}
+                            href={link === 'Chat' ? '/chat' : link === 'Dashboard' ? '/dashboard' : '#'}
+                            style={{ fontSize: '13px', color: 'var(--text-muted)', transition: 'color .15s' }}
+                            className="nav-link"
+                        >
+                            {link}
+                        </Link>
+                    ))}
                 </div>
             </footer>
         </div>

@@ -1,79 +1,124 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 import sys
 import logging
-import sentry_sdk
-from prometheus_fastapi_instrumentator import Instrumentator
-from watchtower import CloudWatchLogHandler
 
-# Add project root to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# ── Ensure project root is on sys.path so `backend.app.*` imports work ────────
+# Works whether you run from: project root OR from the backend/ directory.
+_here = os.path.dirname(os.path.abspath(__file__))          # .../backend/app
+_backend = os.path.dirname(_here)                           # .../backend
+_project = os.path.dirname(_backend)                        # project root
+for _p in [_project, _backend]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
-from .core.manager import EduMentorManager
+from dotenv import load_dotenv
+load_dotenv(os.path.join(_project, '.env'))
 
-# --- Observability Setup ---
-# 1. Sentry
-if os.getenv("SENTRY_DSN"):
-    sentry_sdk.init(
-        dsn=os.getenv("SENTRY_DSN"),
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-        environment=os.getenv("ENVIRONMENT", "development")
-    )
+# ── Optional observability (fail gracefully if not configured) ────────────────
+try:
+    import sentry_sdk
+    if os.getenv("SENTRY_DSN"):
+        sentry_sdk.init(
+            dsn=os.getenv("SENTRY_DSN"),
+            traces_sample_rate=1.0,
+            environment=os.getenv("ENVIRONMENT", "development"),
+        )
+except ImportError:
+    pass
 
-# 2. Logging (CloudWatch)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO"), logging.INFO),
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 logger = logging.getLogger("edumentor-backend")
-if os.getenv("AWS_ACCESS_KEY_ID"): # Only enable CloudWatch if creds exist
-    try:
+
+try:
+    from watchtower import CloudWatchLogHandler
+    if os.getenv("AWS_ACCESS_KEY_ID"):
         logger.addHandler(CloudWatchLogHandler(log_group="edumentor-backend"))
         logger.info("CloudWatch logging enabled")
+except Exception as e:
+    logger.debug(f"CloudWatch logging not enabled: {e}")
+
+# ── FastAPI app ───────────────────────────────────────────────────────────────
+app = FastAPI(
+    title="EduMentor AI Backend",
+    version="1.0",
+    description="AI tutoring backend powered by Amazon Nova models via AWS Bedrock",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Optional Prometheus metrics
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app)
+    logger.info("Prometheus metrics enabled at /metrics")
+except ImportError:
+    logger.debug("prometheus_fastapi_instrumentator not installed — metrics disabled")
+
+# ── Manager (lazy init to surface errors clearly at startup) ──────────────────
+_manager = None
+
+def get_manager():
+    global _manager
+    if _manager is None:
+        from backend.app.core.manager import EduMentorManager
+        _manager = EduMentorManager(_project)
+        logger.info("EduMentorManager initialised")
+    return _manager
+
+# Eagerly initialise at startup so any config errors appear in server logs
+@app.on_event("startup")
+async def startup_event():
+    try:
+        get_manager()
+        logger.info("✅ EduMentor AI backend ready — Nova models connected")
     except Exception as e:
-        logger.warning(f"Failed to enable CloudWatch logging: {e}")
+        logger.error(f"❌ Manager init failed: {e}")
+        # Don't crash the server — individual requests will surface the error
 
-app = FastAPI(title="EduMentor AI Backend", version="1.0")
-
-# 3. Prometheus Metrics
-Instrumentator().instrument(app).expose(app)
-
-# Initialize Manager
-# In a real app, use dependency injection or a lifespan context
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-manager = EduMentorManager(project_root)
-
+# ── Request/Response Models ───────────────────────────────────────────────────
 class ChatRequest(BaseModel):
     message: str
-    student_id: str
+    student_id: str = "student_default"
 
 class ChatResponse(BaseModel):
     response: str
     telemetry: dict
 
+# ── Endpoints ────────────────────────────────────────────────────────────────
 @app.get("/")
 def health_check():
-    return {"status": "active", "system": "EduMentor AI"}
+    return {"status": "active", "system": "EduMentor AI", "models": "Amazon Nova (Lite/Pro/Micro)"}
 
 @app.post("/chat", response_model=ChatResponse)
 def chat_endpoint(request: ChatRequest):
     """
-    Main interaction endpoint.
-    Recieves student message -> Manager -> Agent -> Response.
+    Main chat endpoint.
+    Student message → Manager → Orchestrator → Nova model → Response.
     """
+    manager = get_manager()
     try:
-        # Update state with student ID (simplification)
         manager.state.student_id = request.student_id
-        
-        # Process via Manager
         response_text = manager.process_input(request.message)
-        
         return {
             "response": response_text,
-            "telemetry": manager.state.dict()
+            "telemetry": manager.state.dict(),
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Chat endpoint error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

@@ -139,7 +139,8 @@ docker run -p 5432:5432 -e POSTGRES_PASSWORD=password postgres
 # 2. Run Backend
 cd backend
 source venv/bin/activate
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
+
 
 # 3. Run Frontend
 cd frontend
