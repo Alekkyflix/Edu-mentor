@@ -74,28 +74,51 @@ Write down the outputs printed at the end:
 
 ---
 
-## 4. Application Deployment (Docker)
+---
 
-Once infrastructure is ready, build and push your containers.
+## 4. Frontend Deployment (AWS Amplify)
 
-### Step 4.1: Login to ECR
+We use **AWS Amplify Hosting** for the Next.js frontend. It provides automatic CI/CD, global CDN, and native support for Next.js 14 SSR.
 
-(Terraform handles repo creation, assuming `your-repo` is replaced with actual ECR URL. **Note**: You may need to create an ECR repo manually or add it to Terraform if not using a public registry).
+### Step 4.1: Connect Repository
 
-### Step 4.2: Build & Push Backend
+1. Log in to the [Amplify Console](https://console.aws.amazon.com/amplify/home).
+2. Click **New App** -> **Host web app**.
+3. Select your git provider and repository.
+
+### Step 4.2: Build Settings
+
+The console will automatically detect the `amplify.yml` in the root. If not, ensure it points to the `frontend` directory:
+
+- **Base directory**: `frontend`
+- **Build command**: `npm run build`
+
+### Step 4.3: Environment Variables
+
+Add the following in Amplify Console under **App settings** -> **Environment variables**:
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_API_URL` | The `alb_dns_name` or backend URL from Step 3.4 |
+
+---
+
+## 5. Backend Deployment (Docker / ECS)
+
+If using ECS (via Terraform):
+
+### Step 5.1: Login to ECR
+
+```bash
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <YOUR_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+```
+
+### Step 5.2: Build & Push
 
 ```bash
 cd backend
-docker build -t your-registry/edumentor-backend:latest .
-docker push your-registry/edumentor-backend:latest
-```
-
-### Step 4.3: Build & Push Frontend
-
-```bash
-cd frontend
-docker build -t your-registry/edumentor-frontend:latest .
-docker push your-registry/edumentor-frontend:latest
+docker build -t edumentor-backend:latest .
+docker tag edumentor-backend:latest <YOUR_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/edumentor-backend:latest
+docker push <YOUR_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/edumentor-backend:latest
 ```
 
 ---

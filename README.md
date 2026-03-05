@@ -129,76 +129,90 @@ curl -X POST http://localhost:8000/chat \
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Project Structure
+
+This is a **monorepo** containing both the AI engine and the interactive web interface:
 
 ```
 edumentor-ai/
-├── backend/
-│   ├── app/
-│   │   ├── agents/          # AI agent implementations
-│   │   │   ├── orchestrator.py    # Routing logic
-│   │   │   ├── conversationalist.py  # Sonic (support)
-│   │   │   └── instigator.py      # Cognitive friction
-│   │   ├── core/
-│   │   │   ├── models.py          # Nova model registry
-│   │   │   ├── strands_sdk.py     # AWS Bedrock client
-│   │   │   ├── manager.py         # Main orchestrator
-│   │   │   └── state_manager.py   # Student state tracking
-│   │   └── main.py          # FastAPI application
-│   └── configs/
-│       ├── logic.yaml       # Rule of Three, Nairobi context
-│       └── orchestrator_prompts.yaml
-├── docs/
-│   ├── 30_DAY_ROADMAP.md    # Development sprint plan
-│   ├── AWS_INTEGRATION.md   # Bedrock setup guide
-│   └── DEPLOYMENT.md        # Infrastructure & DevOps
-├── requirements.txt
-├── .env.example
-└── README.md
+├── frontend/             # Next.js 14 Web Application
+│   ├── app/              # App router (Chat, Dashboard, etc.)
+│   ├── components/       # Premium UI components
+│   └── next.config.js    # API proxying and rewrites
+├── backend/              # FastAPI AI Engine
+│   ├── app/              # Agents, core logic, and SDK
+│   └── requirements.txt  # Python dependencies
+├── infrastructure/       # Terraform configs for Backend (App Runner/ECS)
+├── docs/                 # Detailed guides (Deployment, AWS, Roadmap)
+├── amplify.yml           # AWS Amplify Build Specification
+└── .env.example          # Unified environment template
 ```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Local Development
+
+**Run the Backend:**
+
+```bash
+cd backend
+python -m venv venv && source venv/bin/activate
+pip install -r ../requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+**Run the Frontend:**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The frontend automatically proxies `/api/*` to the backend.
+
+### 2. Deployment
+
+#### 📱 Frontend (AWS Amplify)
+
+The frontend is optimized for **AWS Amplify Hosting**:
+
+1. Connect your repository to AWS Amplify Console.
+2. Set `baseDirectory: frontend` in the build settings (already handled by `amplify.yml`).
+3. Add environment variables:
+   - `NEXT_PUBLIC_API_URL`: Your deployed backend URL.
+
+#### ⚙️ Backend (App Runner / ECS)
+
+The backend is deployed via **Terraform**:
+
+```bash
+cd infrastructure
+terraform init
+terraform apply
+```
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for detailed cloud instructions.
 
 ---
 
 ## 🎯 API Endpoints
 
-### `GET /`
-
-Health check endpoint
-
-```json
-{
-  "status": "active",
-  "system": "EduMentor AI"
-}
-```
-
 ### `POST /chat`
 
-Main interaction endpoint
+Main interaction endpoint.
+**Request:** `{"message": "fraction help", "student_id": "s123"}`
+**Response:** `{"response": "...", "telemetry": {...}}`
 
-**Request:**
+---
 
-```json
-{
-  "message": "Is my answer correct?",
-  "student_id": "student_001"
-}
-```
+## 🧪 Testing and Quality
 
-**Response:**
-
-```json
-{
-  "response": "Are you sure? Explain why that must be true.",
-  "telemetry": {
-    "student_id": "student_001",
-    "current_topic": "fractions",
-    "struggle_score": 4,
-    "frustration_level": 0.3,
-    "session_history": [...]
-  }
-}
-```
+- **Backend:** `pytest` from the root or `backend/` directory.
+- **Frontend:** `npm run lint` and `npm run build`.
+- **Infrastructure:** `terraform plan` to verify architecture changes.
 
 ---
 

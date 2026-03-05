@@ -1,0 +1,34 @@
+# ─── Directories to Ignore ───────────
+**/node_modules/
+**/.next/
+**/.venv/
+**/venv/
+**/env/
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.terraform/
+**/out/
+**/dist/
+**/build/
+
+# ─── Files to Ignore ───────────
+**/.DS_Store
+**/.git/
+**/.gitignore
+**/.env*
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.db
+**/*.sqlite
+**/*.sqlite3
+**/*.log
+**/*.tmp
+**/*.temp
+
+# ─── Docker specific ───────────
+Dockerfile
+docker-compose.yml
+.dockerignore
+!requirements.txt

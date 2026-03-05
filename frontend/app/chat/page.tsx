@@ -388,12 +388,15 @@ export default function ChatPage() {
 
         const agentMsgId = (Date.now() + 1).toString();
         try {
-            const res = await fetch('http://localhost:8000/chat', {
+            // Use the relative path to leverage Next.js rewrites:
+            // Local dev  →  http://localhost:8000/chat
+            // Production →  ${NEXT_PUBLIC_API_URL}/chat
+            const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: trimmed, student_id: 'student123' }),
             });
-            if (!res.ok) throw new Error('Bad response');
+            if (!res.ok) throw new Error('Bad response from backend');
             setBackendStatus('online');
             const data = await res.json();
             const agentMsg: Message = {
@@ -584,7 +587,16 @@ export default function ChatPage() {
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                <span style={{ fontWeight: 600, fontSize: '13.5px', color: 'var(--text-primary)', truncate: true }}>
+                                                <span style={{
+                                                    fontWeight: 600,
+                                                    fontSize: '13.5px',
+                                                    color: 'var(--text-primary)',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    display: 'inline-block',
+                                                    maxWidth: '100%'
+                                                }}>
                                                     {agentName || '…'}
                                                 </span>
                                                 <button

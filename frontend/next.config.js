@@ -5,11 +5,13 @@ const nextConfig = {
     images: {
         domains: [],
     },
+    output: 'standalone',
     async rewrites() {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
         return [
             {
                 source: '/api/:path*',
-                destination: 'http://localhost:8000/:path*', // Proxy to FastAPI backend
+                destination: `${apiUrl}/:path*`, // Proxy to FastAPI backend
             },
         ];
     },
