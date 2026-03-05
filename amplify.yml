@@ -23,17 +23,9 @@ frontend:
   phases:
     preBuild:
       commands:
-        # ── Runtime setup ──────────────────────────────────────────────────
-        - echo "==> Node / npm versions"
+        - echo "==> Using system Node version"
         - node --version
         - npm --version
-
-        # Use Node 20 LTS (required for Next.js 14)
-        - nvm install 20
-        - nvm use 20
-        - node --version
-
-        # ── Install frontend dependencies ──────────────────────────────────
         - echo "==> Installing frontend dependencies"
         - cd frontend
         - npm ci --prefer-offline
@@ -42,35 +34,18 @@ frontend:
       commands:
         - echo "==> Building Next.js frontend"
         - cd frontend
-
-        # Inject runtime env vars so Next.js picks them up at build time
-        - echo "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" >> .env.production
-        - echo "NEXT_PUBLIC_APP_ENV=$NEXT_PUBLIC_APP_ENV" >> .env.production
-
-        # Optional: inject Sentry env vars if provided
-        - |
-          if [ -n "$NEXT_PUBLIC_SENTRY_DSN" ]; then
-            echo "NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN" >> .env.production
-            echo "SENTRY_DSN=$SENTRY_DSN" >> .env.production
-          fi
-
         - npm run build
 
     postBuild:
       commands:
         - echo "==> Build complete ✅"
-        - ls -la frontend/.next/
 
   artifacts:
-    # For Next.js SSR on Amplify Hosting (compute tier)
-    # Amplify will serve the .next standalone output
-    baseDirectory: frontend
+    baseDirectory: frontend/.next
     files:
       - "**/*"
-
   cache:
     paths:
-      # Cache node_modules and Next.js build cache between deploys
       - frontend/node_modules/**/*
       - frontend/.next/cache/**/*
 
