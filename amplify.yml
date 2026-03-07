@@ -1,90 +1,35 @@
 version: 1
-
 # ─────────────────────────────────────────────────────────────────────────────
-# EduMentor AI — AWS Amplify Build Specification
+# Monorepo Configuration (Forces Amplify to find Next.js in the subfolder)
 # ─────────────────────────────────────────────────────────────────────────────
-#
-# Architecture:
-#   Frontend  →  Next.js 14 (SSR)  →  AWS Amplify Hosting (this file)
-#   Backend   →  FastAPI (Python)  →  AWS App Runner / ECS / Lambda (separate)
-#
-# Required Amplify Environment Variables (set in Amplify Console → Environment):
-#   NEXT_PUBLIC_API_URL       — Public URL of your deployed FastAPI backend
-#                               e.g. https://api.edumentor.example.com
-#   NEXT_PUBLIC_APP_ENV       — "production" | "staging" | "development"
-#   SENTRY_DSN                — (optional) Sentry DSN for frontend error tracking
-#   SENTRY_AUTH_TOKEN         — (optional) Sentry auth token for source maps
-#   NEXT_PUBLIC_SENTRY_DSN    — (optional) Client-side Sentry DSN
-#
-# Node version is pinned via .nvmrc or the nvm install step below.
-# ─────────────────────────────────────────────────────────────────────────────
-
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - echo "==> Current Directory $(pwd)"
-        - ls -la
-        - echo "==> Installing dependencies"
-        # Single-line robust check: enter frontend only if it exists
-        - test -d frontend && (cd frontend && npm ci --prefer-offline) || npm ci --prefer-offline
-
-    build:
-      commands:
-        - echo "==> Building Next.js frontend"
-        - test -d frontend && (cd frontend && npm run build) || npm run build
-
-    postBuild:
-      commands:
-        - echo "==> Build complete ✅"
-
-  artifacts:
-    # ✅ Fixed: Web Compute requires the folder containing .next, package.json, etc.
-    baseDirectory: frontend
-    files:
-      - "**/*"
-
-  cache:
-    paths:
-      - frontend/node_modules/**/*
-      - frontend/.next/cache/**/*
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Rewrites and Redirects (Version Controlled)
-# ─────────────────────────────────────────────────────────────────────────────
-# This replaces the broken /index.html rule and tells Amplify to use Next.js
-# ─────────────────────────────────────────────────────────────────────────────
-redirects:
-  - source: "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>"
-    target: /
-    status: 200
-    condition: null
-
-customHeaders:
-  - pattern: "**/*"
-    headers:
-      - key: "Strict-Transport-Security"
-        value: "max-age=31536000; includeSubDomains"
-      - key: "X-Content-Type-Options"
-        value: "nosniff"
-      - key: "X-Frame-Options"
-        value: "DENY"
-      - key: "X-XSS-Protection"
-        value: "1; mode=block"
-      - key: "Referrer-Policy"
-        value: "strict-origin-when-cross-origin"
-      - key: "Permissions-Policy"
-        value: "camera=(), microphone=(), geolocation=()"
-      # ✅ ADDED: CSP header — highly recommended for AI/edu apps
-      - key: "Content-Security-Policy"
-        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.edumentor.example.com"
-
-  - pattern: "/_next/static/**"
-    headers:
-      - key: "Cache-Control"
-        value: "public, max-age=31536000, immutable"
-
-  - pattern: "/static/**"
-    headers:
-      - key: "Cache-Control"
-        value: "public, max-age=31536000, immutable"
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo "==> Building in Monorepo mode"
+            - npm ci --prefer-offline
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        # Since appRoot is 'frontend', we only need to point to '.next'
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+    
+    # Optional: Keep your custom headers here
+    customHeaders:
+      - pattern: "**/*"
+        headers:
+          - key: "Strict-Transport-Security"
+            value: "max-age=31536000; includeSubDomains"
+          - key: "X-Content-Type-Options"
+            value: "nosniff"
+          - key: "X-Frame-Options"
+            value: "DENY"
