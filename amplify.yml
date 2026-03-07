@@ -39,8 +39,8 @@ frontend:
         - echo "==> Build complete ✅"
 
   artifacts:
-    # ✅ Fixed: Amplify needs the entire folder (containing .next) to run the server
-    baseDirectory: frontend
+    # ✅ For Next.js SSR, Amplify specifically looks for the .next folder
+    baseDirectory: frontend/.next
     files:
       - "**/*"
 
@@ -50,8 +50,16 @@ frontend:
       - frontend/.next/cache/**/*
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Custom headers
+# Rewrites and Redirects (Version Controlled)
 # ─────────────────────────────────────────────────────────────────────────────
+# This replaces the broken /index.html rule and tells Amplify to use Next.js
+# ─────────────────────────────────────────────────────────────────────────────
+redirects:
+  - source: '</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>'
+    target: /
+    status: 200
+    condition: null
+
 customHeaders:
   - pattern: "**/*"
     headers:
