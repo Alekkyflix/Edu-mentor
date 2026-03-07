@@ -26,28 +26,29 @@ frontend:
         - echo "==> Using system Node version"
         - node --version
         - npm --version
-        - echo "==> Installing frontend dependencies"
-        - cd frontend && npm ci --prefer-offline  # ✅ chain in one command for clarity
+        - echo "==> Installing dependencies"
+        # Remove 'cd frontend' because Amplify App Root is likely already set to 'frontend'
+        - npm ci --prefer-offline
 
     build:
       commands:
         - echo "==> Building Next.js frontend"
-        - cd frontend && npm run build  # ✅ each phase resets to repo root, so cd again
+        - npm run build
 
     postBuild:
       commands:
         - echo "==> Build complete ✅"
 
   artifacts:
-    # ✅ Fixed: For Next.js SSR (standalone), baseDirectory must be the frontend root
-    baseDirectory: frontend
+    # If App Root is 'frontend', baseDirectory should be '.' to capture the build output
+    baseDirectory: .
     files:
       - "**/*"
 
   cache:
     paths:
-      - frontend/node_modules/**/*
-      - frontend/.next/cache/**/*  # ✅ Speeds up incremental builds significantly
+      - node_modules/**/*
+      - .next/cache/**/*
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Custom headers
