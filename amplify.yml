@@ -55,7 +55,7 @@ frontend:
 # This replaces the broken /index.html rule and tells Amplify to use Next.js
 # ─────────────────────────────────────────────────────────────────────────────
 redirects:
-  - source: '</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>'
+  - source: "</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>"
     target: /
     status: 200
     condition: null
