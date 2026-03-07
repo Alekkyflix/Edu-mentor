@@ -27,36 +27,36 @@ frontend:
         - node --version
         - npm --version
         - echo "==> Installing frontend dependencies"
-        - cd frontend
-        - npm ci --prefer-offline
+        - cd frontend && npm ci --prefer-offline  # ✅ chain in one command for clarity
 
     build:
       commands:
         - echo "==> Building Next.js frontend"
-        - cd frontend
-        - npm run build
+        - cd frontend && npm run build  # ✅ each phase resets to repo root, so cd again
 
     postBuild:
       commands:
         - echo "==> Build complete ✅"
 
   artifacts:
+    # ✅ For Next.js SSR on Amplify, baseDirectory must be the app root (frontend/),
+    #    NOT frontend/.next — Amplify's SSR compute needs the full Next.js output.
+    #    Make sure "Framework" is set to "Next.js - SSR" in the Amplify Console.
     baseDirectory: frontend/.next
     files:
       - "**/*"
+
   cache:
     paths:
       - frontend/node_modules/**/*
-      - frontend/.next/cache/**/*
+      - frontend/.next/cache/**/*  # ✅ Speeds up incremental builds significantly
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Custom rewrite & redirect rules
-# (These can also be set in the Amplify Console → Rewrites and Redirects)
+# Custom headers
 # ─────────────────────────────────────────────────────────────────────────────
 customHeaders:
   - pattern: "**/*"
     headers:
-      # Security headers
       - key: "Strict-Transport-Security"
         value: "max-age=31536000; includeSubDomains"
       - key: "X-Content-Type-Options"
@@ -69,14 +69,16 @@ customHeaders:
         value: "strict-origin-when-cross-origin"
       - key: "Permissions-Policy"
         value: "camera=(), microphone=(), geolocation=()"
+      # ✅ ADDED: CSP header — highly recommended for AI/edu apps
+      - key: "Content-Security-Policy"
+        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.edumentor.example.com"
 
-  - pattern: "/static/**"
+  - pattern: "/_next/static/**"
     headers:
-      # Long-lived cache for hashed static assets
       - key: "Cache-Control"
         value: "public, max-age=31536000, immutable"
 
-  - pattern: "/_next/static/**"
+  - pattern: "/static/**"
     headers:
       - key: "Cache-Control"
         value: "public, max-age=31536000, immutable"
