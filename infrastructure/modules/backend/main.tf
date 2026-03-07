@@ -24,9 +24,30 @@ resource "aws_lb_listener" "http" {
   port              = "80"
   protocol          = "HTTP"
 
+  # Default action: return 404 or redirect to frontend
   default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Not Found"
+      status_code  = "404"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "api" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 10
+
+  action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.backend.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
   }
 }
 
@@ -47,7 +68,8 @@ resource "aws_ecs_task_definition" "backend" {
   container_definitions = jsonencode([
     {
       name      = "backend"
-      image     = "your-repo/edumentor-backend:${var.image_tag}"
+      # ✅ TASK: Replace 'edumentor' with your actual ECR/DockerHub repository name
+      image     = "edumentor/backend:${var.image_tag}"
       essential = true
       portMappings = [
         {
@@ -56,8 +78,10 @@ resource "aws_ecs_task_definition" "backend" {
         }
       ]
       environment = [
-        { name = "DATABASE_URL", value = "postgres://${var.db_endpoint}" },
-        { name = "AWS_REGION", value = "us-east-1" }
+        # ✅ Fixed: Added credentials and standard protocol for SQLAlchemy/Postgres
+        { name = "DATABASE_URL", value = "postgresql://${var.db_username}:${var.db_password}@${var.db_endpoint}/edumentor" },
+        { name = "AWS_REGION", value = "us-east-1" },
+        { name = "ENVIRONMENT", value = var.environment }
       ]
       logConfiguration = {
         logDriver = "awslogs"

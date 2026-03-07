@@ -13,7 +13,7 @@ resource "aws_lb_target_group" "frontend" {
 
 resource "aws_lb_listener_rule" "frontend" {
   listener_arn = var.alb_listener_arn
-  priority     = 100
+  priority     = 50 # ✅ Lower priority than API (which is 10)
 
   action {
     type             = "forward"
@@ -40,7 +40,8 @@ resource "aws_ecs_task_definition" "frontend" {
   container_definitions = jsonencode([
     {
       name      = "frontend"
-      image     = "your-repo/edumentor-frontend:${var.image_tag}"
+      # ✅ TASK: Replace 'edumentor' with your actual ECR/DockerHub repository name
+      image     = "edumentor/frontend:${var.image_tag}"
       essential = true
       portMappings = [
         {

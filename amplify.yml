@@ -39,10 +39,8 @@ frontend:
         - echo "==> Build complete ✅"
 
   artifacts:
-    # ✅ For Next.js SSR on Amplify, baseDirectory must be the app root (frontend/),
-    #    NOT frontend/.next — Amplify's SSR compute needs the full Next.js output.
-    #    Make sure "Framework" is set to "Next.js - SSR" in the Amplify Console.
-    baseDirectory: frontend/.next
+    # ✅ Fixed: For Next.js SSR (standalone), baseDirectory must be the frontend root
+    baseDirectory: frontend
     files:
       - "**/*"
 

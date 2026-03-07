@@ -48,8 +48,12 @@ class EduMentorManager:
         Loads prompts from config and registers agents using centralized Model Registry.
         """
         # Load Prompts & Logic
-        prompts_path = os.path.join(self.project_root, "backend/configs/orchestrator_prompts.yaml")
-        logic_path = os.path.join(self.project_root, "backend/configs/logic.yaml")
+        # Use relative paths from this file to locate configs reliably in any environment
+        base_path = Path(__file__).parent.parent.parent # backend/app
+        configs_dir = base_path.parent / "configs"
+        
+        prompts_path = configs_dir / "orchestrator_prompts.yaml"
+        logic_path = configs_dir / "logic.yaml"
         
         try:
             with open(prompts_path, 'r') as f:
@@ -57,8 +61,8 @@ class EduMentorManager:
                 
             with open(logic_path, 'r') as f:
                 logic = yaml.safe_load(f)["prompt_logic"]
-        except FileNotFoundError:
-            print("[Manager] Config files not found. Using defaults.")
+        except FileNotFoundError as e:
+            print(f"[Manager] Config file not found at {e.filename}. Using defaults.")
             return
 
         # 1. Orchestrator (Nova Lite)
