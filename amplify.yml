@@ -22,7 +22,18 @@ applications:
         paths:
           - node_modules/**/*
           - .next/cache/**/*
-    
+
+    # ✅ Added: Standard SSR Rewrites (to handle pages) and API Rewrite (to handle backend)
+    redirects:
+      - source: "/api/<*>"
+        target: "http://edumentor-alb-1979401763.us-east-1.elb.amazonaws.com/<*>" # Placeholder - put your actual ALB URL here
+        status: 200
+        condition: null
+      - source: "/<^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>"
+        target: "/"
+        status: 200
+        condition: null
+
     # Optional: Keep your custom headers here
     customHeaders:
       - pattern: "**/*"
