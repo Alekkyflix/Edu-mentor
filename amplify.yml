@@ -39,8 +39,8 @@ frontend:
         - echo "==> Build complete ✅"
 
   artifacts:
-    # ✅ For Next.js SSR, Amplify specifically looks for the .next folder
-    baseDirectory: frontend/.next
+    # ✅ Fixed: Web Compute requires the folder containing .next, package.json, etc.
+    baseDirectory: frontend
     files:
       - "**/*"
 
