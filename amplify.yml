@@ -39,8 +39,8 @@ frontend:
         - echo "==> Build complete ✅"
 
   artifacts:
-    # Amplify needs to know where the built files are relative to its App Root
-    baseDirectory: frontend/.next
+    # ✅ Fixed: Amplify needs the entire folder (containing .next) to run the server
+    baseDirectory: frontend
     files:
       - "**/*"
 
