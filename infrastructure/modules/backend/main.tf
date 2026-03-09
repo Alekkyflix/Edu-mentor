@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_lb" "main" {
   name               = "edumentor-alb-${var.environment}"
   internal           = false
@@ -68,8 +70,7 @@ resource "aws_ecs_task_definition" "backend" {
   container_definitions = jsonencode([
     {
       name      = "backend"
-      # ✅ TASK: Replace 'edumentor' with your actual ECR/DockerHub repository name
-      image     = "edumentor/backend:${var.image_tag}"
+      image     = "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/edumentor-backend:${var.image_tag}"
       essential = true
       portMappings = [
         {
@@ -156,8 +157,11 @@ resource "aws_iam_role_policy" "bedrock_access" {
     Statement = [
       {
         Effect = "Allow"
-        Action = ["bedrock:*"]
-        Resource = "*"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = "*" # Restricting to specific models is possible but usually done via model_id in the app
       }
     ]
   })
