@@ -72,6 +72,13 @@ resource "aws_security_group" "app" {
     cidr_blocks = [var.vpc_cidr] # Allow ALB to reach tasks internally
   }
 
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr] # Allow tasks to reach VPC Endpoints (ECR/Logs)
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
