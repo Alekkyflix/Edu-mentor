@@ -65,6 +65,13 @@ resource "aws_security_group" "app" {
     cidr_blocks = ["0.0.0.0/0"] # Allow public traffic to ALB
   }
 
+  ingress {
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr] # Allow ALB to reach tasks internally
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -86,10 +93,46 @@ resource "aws_security_group" "db" {
   }
 }
 
+# --- VPC Endpoints for Private Connectivity to ECR/S3 ---
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.main.id
+  service_name = "com.amazonaws.${var.aws_region}.s3"
+  route_table_ids = [aws_route_table.public.id] # Also used by private if secondary routes exist
+}
+
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.aws_region}.ecr.dkr"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.app.id]
+}
+
+resource "aws_vpc_endpoint" "ecr_api" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.aws_region}.ecr.api"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.app.id]
+}
+
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.aws_region}.logs"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.app.id]
+}
+
 data "aws_availability_zones" "available" {}
 
 variable "vpc_cidr" {}
 variable "environment" {}
+variable "aws_region" {}
 
 output "vpc_id" { value = aws_vpc.main.id }
 output "public_subnet_ids" { value = aws_subnet.public[*].id }

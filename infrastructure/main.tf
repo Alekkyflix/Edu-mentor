@@ -30,6 +30,7 @@ module "networking" {
 
   vpc_cidr    = var.vpc_cidr
   environment = var.environment
+  aws_region  = var.aws_region
 }
 
 module "database" {
