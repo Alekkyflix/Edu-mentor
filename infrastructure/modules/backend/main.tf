@@ -87,14 +87,18 @@ resource "aws_ecs_task_definition" "backend" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ecs/edumentor-backend"
+          "awslogs-group"         = aws_cloudwatch_log_group.backend.name
           "awslogs-region"        = "us-east-1"
           "awslogs-stream-prefix" = "ecs"
-          "awslogs-create-group"  = "true"
         }
       }
     }
   ])
+}
+
+resource "aws_cloudwatch_log_group" "backend" {
+  name              = "/ecs/edumentor-backend"
+  retention_in_days = 7
 }
 
 resource "aws_ecs_service" "backend" {

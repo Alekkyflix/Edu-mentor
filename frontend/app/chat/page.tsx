@@ -297,16 +297,26 @@ export default function ChatPage() {
 
     // ── Backend connection monitor ───────────────────────────────────────────
     useEffect(() => {
+        let failureCount = 0;
         const checkBackend = async () => {
             try {
                 const res = await fetch('/api/', { cache: 'no-store' });
                 if (res.ok) {
                     setBackendStatus('online');
+                    failureCount = 0; // Reset on success
                 } else {
-                    setBackendStatus('offline');
+                    failureCount++;
+                    if (failureCount >= 3) {
+                        setBackendStatus('offline');
+                        clearInterval(interval);
+                    }
                 }
             } catch (_) {
-                setBackendStatus('offline');
+                failureCount++;
+                if (failureCount >= 3) {
+                    setBackendStatus('offline');
+                    clearInterval(interval);
+                }
             }
         };
 
