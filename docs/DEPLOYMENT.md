@@ -76,33 +76,65 @@ Write down the outputs printed at the end:
 
 ---
 
-## 4. Frontend Deployment (AWS Amplify)
+## 4. Frontend Deployment (Primary: Vercel)
 
-We use **AWS Amplify Hosting** for the Next.js frontend. It provides automatic CI/CD, global CDN, and native support for Next.js 14 SSR.
+We use **Vercel** as the primary platform for the Next.js frontend because of its seamless integration with Next.js and high-performance CDN.
 
 ### Step 4.1: Connect Repository
 
-1. Log in to the [Amplify Console](https://console.aws.amazon.com/amplify/home).
-2. Click **New App** -> **Host web app**.
-3. Select your git provider and repository.
+1.  Log in to the [Vercel Dashboard](https://vercel.com/dashboard).
+2.  Click **Add New...** -> **Project**.
+3.  Import your git repository.
+4.  **Configure Project Settings**:
+    - **Framework Preset**: `Next.js`
+    - **Root Directory**: `frontend`
+    - **Build Command**: `npm run build`
+    - **Output Directory**: `.next`
 
-### Step 4.2: Build Settings
+### Step 4.2: Environment Variables
+
+Add the following in the Vercel Dashboard under **Project Settings** -> **Environment Variables**:
+
+| Variable              | Value                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | The `alb_dns_name` or backend URL from Step 3.4 (e.g., `https://api.edumentor.ai/api`) |
+
+### Step 4.3: Deploy
+
+Click **Deploy**. Vercel will automatically build and deploy your application. Subsequent pushes to your git provider will trigger automatic deployments.
+
+---
+
+## 5. Alternate Frontend Deployment (AWS Amplify)
+
+_Note: This is an alternate deployment method. As requested, we are keeping the configuration for future use._
+
+We can also use **AWS Amplify Hosting** for the Next.js frontend. It provides automatic CI/CD and support for Next.js 14 SSR.
+
+### Step 5.1: Connect Repository (Amplify)
+
+1.  Log in to the [Amplify Console](https://console.aws.amazon.com/amplify/home).
+2.  Click **New App** -> **Host web app**.
+3.  Select your git provider and repository.
+
+### Step 5.2: Build Settings (Amplify)
 
 The console will automatically detect the `amplify.yml` in the root. If not, ensure it points to the `frontend` directory:
 
 - **Base directory**: `frontend`
 - **Build command**: `npm run build`
 
-### Step 4.3: Environment Variables
+### Step 5.3: Environment Variables (Amplify)
 
 Add the following in Amplify Console under **App settings** -> **Environment variables**:
-| Variable | Value |
-| --- | --- |
+
+| Variable              | Value                                           |
+| --------------------- | ----------------------------------------------- |
 | `NEXT_PUBLIC_API_URL` | The `alb_dns_name` or backend URL from Step 3.4 |
 
 ---
 
-## 5. Backend Deployment (Docker / ECS)
+## 6. Backend Deployment (Docker / ECS)
 
 If using ECS (via Terraform):
 

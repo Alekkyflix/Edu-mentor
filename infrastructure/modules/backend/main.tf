@@ -46,7 +46,7 @@ resource "aws_lb_listener_rule" "api" {
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/*"] # Matches all paths (e.g., /chat, /health) sent by Vercel
     }
   }
 }
@@ -168,6 +168,8 @@ variable "public_subnet_ids" {}
 variable "private_subnet_ids" {}
 variable "app_security_group" {}
 variable "db_endpoint" {}
+variable "db_username" {}
+variable "db_password" {}
 variable "environment" {}
 variable "image_tag" {}
 

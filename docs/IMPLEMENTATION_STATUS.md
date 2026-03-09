@@ -1,8 +1,8 @@
 # EduMentor AI — Implementation Status
 
-> **Last updated:** 2026-03-02  
+> **Last updated:** 2026-03-09  
 > **Environment:** Development  
-> **Stack:** Next.js 14 · FastAPI · AWS Bedrock (Nova) · Cognito · DynamoDB · Terraform · GitHub Actions
+> **Stack:** Next.js 14 · FastAPI · AWS Bedrock (Nova) · Cognito · DynamoDB · Terraform · GitHub Actions · Vercel
 
 ---
 
@@ -173,15 +173,17 @@
 
 ### Compute & Networking
 
-| Resource                              | Status | Notes                                             |
-| ------------------------------------- | ------ | ------------------------------------------------- |
-| VPC + subnets                         | ✅     | `modules/networking`                              |
-| ECS cluster (backend + frontend)      | ✅     | `modules/backend`, `modules/frontend`             |
-| Application Load Balancer             | ✅     | `modules/backend`                                 |
-| RDS PostgreSQL                        | ✅     | `modules/database` — for future relational data   |
-| Auto-scaling for ECS tasks            | 🔲     | Target tracking policy planned                    |
-| CloudFront CDN for frontend           | 🔲     | Direct ALB currently; CDN improves global latency |
-| ElastiCache (Redis) for session cache | 🔲     | Planned for rate limiting + WS presence           |
+| Resource                              | Status | Notes                                           |
+| ------------------------------------- | ------ | ----------------------------------------------- |
+| VPC + subnets                         | ✅     | `modules/networking`                            |
+| ECS cluster (backend)                 | ✅     | `modules/backend`                               |
+| Vercel Deployment (frontend)          | ✅     | Primary frontend platform                       |
+| Application Load Balancer             | ✅     | `modules/backend`                               |
+| RDS PostgreSQL                        | ✅     | `modules/database` — for future relational data |
+| AWS Amplify Deployment (frontend)     | 🟡     | Alternate platform; configuration kept          |
+| Auto-scaling for ECS tasks            | 🔲     | Target tracking policy planned                  |
+| CloudFront CDN for frontend           | 🔲     | (Handled by Vercel for frontend)                |
+| ElastiCache (Redis) for session cache | 🔲     | Planned for rate limiting + WS presence         |
 
 ### Security
 

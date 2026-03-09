@@ -52,6 +52,8 @@ module "backend" {
   private_subnet_ids = module.networking.private_subnet_ids
   app_security_group = module.networking.app_sg_id
   db_endpoint        = module.database.endpoint
+  db_username        = var.db_username
+  db_password        = var.db_password
   environment        = var.environment
   image_tag          = var.backend_image_tag
 }
@@ -78,3 +80,5 @@ module "monitoring" {
   environment    = var.environment
   alb_arn_suffix = module.backend.alb_arn_suffix
 }
+
+
