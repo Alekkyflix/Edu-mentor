@@ -295,6 +295,29 @@ export default function ChatPage() {
         }
     }, []);
 
+    // ── Backend connection monitor ───────────────────────────────────────────
+    useEffect(() => {
+        const checkBackend = async () => {
+            try {
+                const res = await fetch('/api/', { cache: 'no-store' });
+                if (res.ok) {
+                    setBackendStatus('online');
+                } else {
+                    setBackendStatus('offline');
+                }
+            } catch (_) {
+                setBackendStatus('offline');
+            }
+        };
+
+        // Check initially
+        checkBackend();
+
+        // Check every 5 seconds
+        const interval = setInterval(checkBackend, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
     // ── Handle agent name confirmed from modal ────────────────────────────────
     const handleNameConfirm = (name: string, emoji: string) => {
         localStorage.setItem('edu_agent_name', name);
