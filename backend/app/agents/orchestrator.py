@@ -28,7 +28,7 @@ class OrchestratorAgent:
         self.client = client
         self.state = state_manager
         
-    def process(self, user_input: str) -> str:
+    def process(self, user_input: str, history: Optional[List[Dict[str, str]]] = None) -> str:
         """
         Process student input and route to appropriate agent.
         
@@ -40,6 +40,7 @@ class OrchestratorAgent:
         
         Args:
             user_input: Student's message
+            history: Optional list of previous messages
             
         Returns:
             Response from Sonic or Instigator agent
@@ -67,18 +68,18 @@ class OrchestratorAgent:
                  decision = "sonic"
                  print("[Orchestrator] High frustration detected. Routing to Sonic for support.")
                  
-            elif struggle_score < 3 and len(user_input) > 10 and "?" not in user_input:
+            elif struggle_score < 3 and len(user_input) > 20 and "?" not in user_input:
                  # Low struggle + confident statement -> Challenge them!
                  decision = "instigator"
                  print("[Orchestrator] Low struggle detected. Routing to Instigator for cognitive friction.")
                  
-            elif "check" in user_input.lower() or "right?" in user_input.lower():
+            elif any(word in user_input.lower() for word in ["check", "right?", "correct", "is it"]):
                  # Explicit request for validation -> Opportunity for Socratic questioning
                  decision = "instigator"
                  
             # 3. Invoke Sub-agent
-            # Note: self.client.invoke_agent logic would handle the actual Bedrock call
-            response = self.client.invoke_agent(decision, user_input, context)
+            # Note: self.client.invoke_agent logic now handles Bedrock call with history
+            response = self.client.invoke_agent(decision, user_input, context, history=history)
             
             # 4. Post-processing (Update State)
             if decision == "instigator":

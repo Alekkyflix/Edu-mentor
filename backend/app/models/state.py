@@ -8,4 +8,4 @@ class LearningState(BaseModel):
     struggle_score: int = Field(0, description="Count of incorrect attempts or challenges")
     struggle_duration: int = Field(0, description="Seconds spent on current problem")
     conceptual_mastery: float = Field(0.0, ge=0.0, le=1.0)
-    session_history: List[str] = []
+    session_history: List[Dict[str, str]] = []

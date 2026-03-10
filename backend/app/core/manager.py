@@ -112,9 +112,31 @@ class EduMentorManager:
             TimeoutError: If Bedrock API times out
             ValueError: If orchestrator routing fails
         """
+    def process_input(self, user_input: str) -> str:
+        """
+        Main Event Loop: Input -> Orchestrator Class -> Agent -> Output
+        
+        Processes student input through the hierarchical agent system:
+        1. Context is retrieved from State
+        2. Input + History is sent to Orchestrator
+        3. Orchestrator routes to Lissa (Sonic) or The Sage (Instigator)
+        4. Response is added to history and returned
+        """
         try:
-            # Checks for cognitive friction thresholds are handled inside OrchestratorAgent.process()
-            response = self.orchestrator_logic.process(user_input)
+            # 1. Retrieve history
+            history = self.state.session_history
+            
+            # 2. Process via Orchestrator (Decision + Bedrock Call)
+            response = self.orchestrator_logic.process(user_input, history=history)
+            
+            # 3. Update History
+            self.state.session_history.append({"role": "user", "content": user_input})
+            self.state.session_history.append({"role": "assistant", "content": response})
+            
+            # Keep history manageable (last 10 turns)
+            if len(self.state.session_history) > 20:
+                self.state.session_history = self.state.session_history[-20:]
+                
             return response
         except TimeoutError as e:
             print(f"[Manager] Bedrock timeout: {e}")

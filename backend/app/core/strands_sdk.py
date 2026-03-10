@@ -63,7 +63,7 @@ class StrandsClient:
         retry=retry_if_exception_type((ClientError, BotoCoreError, TimeoutError)),
         reraise=True
     )
-    def invoke_agent(self, agent_name: str, input_text: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def invoke_agent(self, agent_name: str, input_text: str, context: Optional[Dict[str, Any]] = None, history: Optional[List[Dict[str, str]]] = None) -> str:
         """
         Invokes an agent using Bedrock's `converse` API.
         Includes exponential backoff (retries up to 3 times) for network resilience.
@@ -83,10 +83,20 @@ class StrandsClient:
             )
             enriched_input = ctx_note + input_text
 
-        messages = [{
+        # Build message history
+        messages = []
+        if history:
+            for turn in history:
+                messages.append({
+                    "role": turn["role"],
+                    "content": [{"text": turn["content"]}]
+                })
+        
+        # Add the current message
+        messages.append({
             "role": "user",
             "content": [{"text": enriched_input}],
-        }]
+        })
 
         # Build API call kwargs — only include `system` if non-empty
         converse_kwargs: Dict[str, Any] = {
