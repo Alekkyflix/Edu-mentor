@@ -105,7 +105,7 @@ resource "aws_security_group" "db" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_id       = aws_vpc.main.id
   service_name = "com.amazonaws.${var.aws_region}.s3"
-  route_table_ids = [aws_route_table.public.id] # Also used by private if secondary routes exist
+  route_table_ids = [aws_route_table.public.id, aws_vpc.main.main_route_table_id] # Added main_route_table_id for private subnets
 }
 
 resource "aws_vpc_endpoint" "ecr_dkr" {
@@ -129,6 +129,15 @@ resource "aws_vpc_endpoint" "ecr_api" {
 resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${var.aws_region}.logs"
+  vpc_endpoint_type   = "Interface"
+  private_dns_enabled = true
+  subnet_ids          = aws_subnet.private[*].id
+  security_group_ids  = [aws_security_group.app.id]
+}
+
+resource "aws_vpc_endpoint" "bedrock" {
+  vpc_id              = aws_vpc.main.id
+  service_name        = "com.amazonaws.${var.aws_region}.bedrock-runtime"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   subnet_ids          = aws_subnet.private[*].id
