@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from backend.app.core.strands_sdk import StrandsClient
 from backend.app.core.state_manager import StateManager
 import yaml

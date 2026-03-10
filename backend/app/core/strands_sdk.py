@@ -1,5 +1,5 @@
 import boto3
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import json
 import os
 from botocore.exceptions import ClientError, BotoCoreError
