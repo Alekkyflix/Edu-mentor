@@ -96,27 +96,7 @@ class EduMentorManager:
         """
         Main Event Loop: Input -> Orchestrator Class -> Agent -> Output
         
-        Processes student input through the hierarchical agent system:
-        1. Input is sent to Orchestrator
-        2. Orchestrator analyzes struggle score and context
-        3. Routes to Sonic (support) or Instigator (challenge)
-        4. Returns agent response
-        
-        Args:
-            user_input: Student's message (text or transcribed voice)
-            
-        Returns:
-            Agent response text (ready for voice synthesis or text display)
-            
-        Raises:
-            TimeoutError: If Bedrock API times out
-            ValueError: If orchestrator routing fails
-        """
-    def process_input(self, user_input: str) -> str:
-        """
-        Main Event Loop: Input -> Orchestrator Class -> Agent -> Output
-        
-        Processes student input through the hierarchical agent system:
+        Processes student input through the system:
         1. Context is retrieved from State
         2. Input + History is sent to Orchestrator
         3. Orchestrator routes to Lissa (Sonic) or The Sage (Instigator)
