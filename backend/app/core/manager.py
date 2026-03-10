@@ -49,8 +49,10 @@ class EduMentorManager:
         """
         # Load Prompts & Logic
         # Use relative paths from this file to locate configs reliably in any environment
-        base_path = Path(__file__).parent.parent.parent # backend/app
-        configs_dir = base_path.parent / "configs"
+        # __file__ is .../backend/app/core/manager.py
+        # .parent x3 is .../backend
+        base_path = Path(__file__).parent.parent.parent
+        configs_dir = base_path / "configs"
         
         prompts_path = configs_dir / "orchestrator_prompts.yaml"
         logic_path = configs_dir / "logic.yaml"
