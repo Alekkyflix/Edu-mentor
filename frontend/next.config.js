@@ -2,6 +2,7 @@
 const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
+    output: 'standalone', // Required for Next.js 14 SSR on Amplify
     images: {
         domains: [],
     },

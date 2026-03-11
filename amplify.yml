@@ -10,13 +10,9 @@ frontend:
         - nvm use 20
         - npm run build
   artifacts:
-    # Set to current directory to include the manually created deploy-manifest.json
-    baseDirectory: .
+    baseDirectory: .next
     files:
-      - '.next/**/*'
-      - 'deploy-manifest.json'
-      - 'next.config.js'
-      - 'package.json'
+      - '**/*'
   cache:
     paths:
       - node_modules/**/*
