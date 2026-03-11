@@ -1,35 +1,18 @@
 version: 1
-applications:
-  - appRoot: frontend
-    frontend:
-      phases:
-        preBuild:
-          commands:
-            # Clean install dependencies
-            - npm ci
-        build:
-          commands:
-            # Build the Next.js application
-            - npm run build
-      artifacts:
-        # Target the .next directory for Next.js SSR
-        baseDirectory: .next
-        files:
-          - '**/*'
-      cache:
-        paths:
-          - node_modules/**/*
-          - .next/cache/**/*
-
-    # Optional redirects for Amplify (fallback)
-    # Most routing is handled by Next.js rewrites in next.config.js
-    redirects:
-      - source: "/api/<*>"
-        # Note: Set NEXT_PUBLIC_API_URL in Amplify Console to your ALB DNS Name
-        target: "https://edumentor-alb-production.us-east-1.elb.amazonaws.com/<*>"
-        status: 200
-        condition: null
-      - source: "/<^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>"
-        target: "/"
-        status: 200
-        condition: null
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd frontend && npm ci
+    build:
+      commands:
+        - cd frontend && npm run build
+  artifacts:
+    # Point directly to the .next folder within the frontend directory
+    baseDirectory: frontend/.next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - frontend/node_modules/**/*
+      - frontend/.next/cache/**/*

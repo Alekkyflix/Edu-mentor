@@ -2,7 +2,7 @@
 
 This guide outlines the steps to move your frontend from Vercel to **AWS Amplify Hosting**. This move will unify your stack on AWS, improve networking stability, and simplify environment management.
 
-## 🚨 Critical Step: Deploy the Backend Hotfix First
+## 🚨 Critical Step 1: Deploy the Backend Hotfix First
 
 Before moving the frontend, we must ensure the backend is actually returning valid responses. The "Offline" error you saw was a **500 Internal Server Error** caused by a python syntax overlap in the last update.
 
@@ -28,45 +28,42 @@ Before moving the frontend, we must ensure the backend is actually returning val
 
 ---
 
-## 🛠️ Phase 1: Amplify Configuration
+## 🛠️ Critical Step 2: The "Flat" Amplify Config
 
-I have already updated your `amplify.yml` to handle the **Monorepo** structure correctly. It is now optimized for Next.js 14 SSR.
+I have updated your `amplify.yml`. **You must push this to GitHub for the build to work.**
 
-### Key Changes:
+We are using a "Flat" configuration. This ensures Amplify detects the Next.js 14 SSR structure correctly even inside a monorepo.
 
-- **appRoot**: Set to `frontend` so Amplify knows where the Next.js app lives.
-- **baseDirectory**: Set to `.next` for SSR compatibility.
-- **Rewrites**: Added fallback rules for the API.
+**Push your changes now:**
+
+```bash
+git add amplify.yml docs/AMPLIFY_MIGRATION.md
+git commit -m "fix: use flat amplify config and update migration guide"
+git push origin main
+```
 
 ---
 
-## ☁️ Phase 2: Connecting the Repo to AWS Amplify
+## ☁️ Phase 3: AWS Amplify Console Setup
 
 1.  Log in to the **[AWS Amplify Console](https://console.aws.amazon.com/amplify/home)**.
-2.  Click **"New App"** -> **"Host web app"**.
-3.  Select your GitHub repository (`Alekkyflix/Edu-mentor`).
-4.  **Monorepo Settings**:
-    - Check "My app is a monorepo".
-    - Enter `frontend` as the root directory.
-5.  **Build Settings**:
-    - Amplify will automatically detect the [amplify.yml](file:///home/flix/Desktop/Edumentor%20AI/amplify.yml) we just updated.
-6.  **Environment Variables**:
-    - Under "Advanced settings", add the following:
-      - `NEXT_PUBLIC_API_URL`: `http://edumentor-alb-production.us-east-1.elb.amazonaws.com`
-      - _(Note: Double check your ALB DNS name in the EC2 Console if this defaults to 404)_.
-7.  **Deploy**.
+2.  **Service Role (IMPORTANT)**:
+    - Go to **App Settings** -> **General**.
+    - Look at **"Service role"**. Click **Edit**.
+    - If you don't have one, create a role that gives Amplify permissions to manage resources. This is required for SSR to build the manifest.
+3.  **Compute Role (IMPORTANT)**:
+    - In the same **General** settings, ensure a **"Compute role"** is selected. If it says "No default role set", Amplify cannot deploy your Next.js server.
+4.  **Environment Variables**:
+    - Add `NEXT_PUBLIC_API_URL`: `http://edumentor-alb-production.us-east-1.elb.amazonaws.com`
+5.  **Redeploy**:
+    - After pushing the new `amplify.yml` to Git, click **"Redeploy this version"** in the build tab.
 
 ---
 
-## 🔍 Phase 3: Verification
+## 🔍 Verification
 
 Once the build finishes:
 
-1.  Open the Amplify-generated URL.
+1.  Open the Amplify URL.
 2.  The status dot should be **Green** (Backend Online).
-3.  Send a message. Since we fixed the `manager.py` syntax, the response should flow back successfully without timing out or erroring.
-
-### Why this is better:
-
-- **Same Network**: Amplify and ECS both live in AWS, reducing the "cross-cloud" latency that often hangs Vercel rewrites.
-- **SSR Power**: Amplify Hosting is optimized specifically for Next.js 14 standalone output.
+3.  Send a message. Since we fixed the `manager.py` syntax, the response should flow back successfully!
