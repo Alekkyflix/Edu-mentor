@@ -1,0 +1,12 @@
+aws_region  = "us-east-1"
+environment = "production"
+vpc_cidr    = "10.0.0.0/16"
+
+# Database Credentials
+# 🚨 CRITICAL: Never commit your real password to Git!
+db_username = "<YOUR_DB_USERNAME>"
+db_password = "<YOUR_SECURE_PASSWORD>" # Must be at least 8 characters
+
+# Application Image Tags
+backend_image_tag  = "latest"
+frontend_image_tag = "latest"
