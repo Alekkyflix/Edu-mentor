@@ -2,7 +2,7 @@
 const nextConfig = {
     reactStrictMode: true,
     swcMinify: true,
-    output: 'standalone', // ✅ Required for optimized container & Amplify SSR deployment
+    // output: 'standalone', // Removed for Amplify managed SSR compatibility
     images: {
         domains: [],
     },

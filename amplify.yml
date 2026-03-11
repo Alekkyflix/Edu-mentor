@@ -5,9 +5,11 @@ applications:
       phases:
         preBuild:
           commands:
+            - nvm use 20 # Ensure Node.js 20 for Next.js 14
             - npm ci
         build:
           commands:
+            - nvm use 20
             - npm run build
       artifacts:
         baseDirectory: .next
