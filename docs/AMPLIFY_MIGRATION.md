@@ -10,7 +10,7 @@ Before moving the frontend, we must ensure the backend is actually returning val
 
 1.  **Login**:
     ```bash
-    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 034362073127.dkr.ecr.us-east-1.amazonaws.com
+    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin IAM Acc number.dkr.ecr.us-east-1.amazonaws.com
     ```
 2.  **Build**:
     ```bash
@@ -18,8 +18,8 @@ Before moving the frontend, we must ensure the backend is actually returning val
     ```
 3.  **Tag & Push**:
     ```bash
-    docker tag edumentor-backend:latest 034362073127.dkr.ecr.us-east-1.amazonaws.com/edumentor-backend:latest
-    docker push 034362073127.dkr.ecr.us-east-1.amazonaws.com/edumentor-backend:latest
+    docker tag edumentor-backend:latest IAM acc no.dkr.ecr.us-east-1.amazonaws.com/edumentor-backend:latest
+    docker push IAM acc no.dkr.ecr.us-east-1.amazonaws.com/edumentor-backend:latest
     ```
 4.  **Restart ECS**:
     ```bash
