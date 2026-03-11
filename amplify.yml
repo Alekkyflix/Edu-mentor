@@ -12,7 +12,8 @@ applications:
             - nvm use 20
             - npm run build
       artifacts:
-        baseDirectory: .next
+        # ✅ FIX: Point to the folder "frontend" (which is . in this context)
+        baseDirectory: .
         files:
           - '**/*'
       cache:
