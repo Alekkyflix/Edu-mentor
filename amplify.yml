@@ -3,7 +3,6 @@ frontend:
   phases:
     preBuild:
       commands:
-        # We are already in the frontend folder (confirmed by previous build logs)
         - nvm use 20
         - npm ci
     build:
@@ -11,10 +10,13 @@ frontend:
         - nvm use 20
         - npm run build
   artifacts:
-    # Target the .next directory directly
-    baseDirectory: .next
+    # Set to current directory to include the manually created deploy-manifest.json
+    baseDirectory: .
     files:
-      - '**/*'
+      - '.next/**/*'
+      - 'deploy-manifest.json'
+      - 'next.config.js'
+      - 'package.json'
   cache:
     paths:
       - node_modules/**/*
