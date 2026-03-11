@@ -1,46 +1,35 @@
 version: 1
-# ─────────────────────────────────────────────────────────────────────────────
-# Monorepo Configuration (Forces Amplify to find Next.js in the subfolder)
-# ─────────────────────────────────────────────────────────────────────────────
 applications:
   - appRoot: frontend
     frontend:
       phases:
         preBuild:
           commands:
-            - echo "==> Building in Monorepo mode"
-            - npm ci --prefer-offline
+            # Clean install dependencies
+            - npm ci
         build:
           commands:
+            # Build the Next.js application
             - npm run build
       artifacts:
-        # Since appRoot is 'frontend', we only need to point to '.next'
+        # Target the .next directory for Next.js SSR
         baseDirectory: .next
         files:
-          - "**/*"
+          - '**/*'
       cache:
         paths:
           - node_modules/**/*
           - .next/cache/**/*
 
-    # ✅ Added: Standard SSR Rewrites (to handle pages) and API Rewrite (to handle backend)
+    # Optional redirects for Amplify (fallback)
+    # Most routing is handled by Next.js rewrites in next.config.js
     redirects:
       - source: "/api/<*>"
-        target: "http://edumentor-alb-1979401763.us-east-1.elb.amazonaws.com/<*>" # Placeholder - put your actual ALB URL here
+        # Note: Set NEXT_PUBLIC_API_URL in Amplify Console to your ALB DNS Name
+        target: "https://edumentor-alb-production.us-east-1.elb.amazonaws.com/<*>"
         status: 200
         condition: null
       - source: "/<^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json|webp)$)([^.]+$)/>"
         target: "/"
         status: 200
         condition: null
-
-    # Optional: Keep your custom headers here
-    customHeaders:
-      - pattern: "**/*"
-        headers:
-          - key: "Strict-Transport-Security"
-            value: "max-age=31536000; includeSubDomains"
-          - key: "X-Content-Type-Options"
-            value: "nosniff"
-          - key: "X-Frame-Options"
-            value: "DENY"
