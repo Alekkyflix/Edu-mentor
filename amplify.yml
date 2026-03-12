@@ -12,7 +12,7 @@ applications:
             - nvm use 20
             - npm run build
       artifacts:
-        baseDirectory: .next
+        baseDirectory: .
         files:
           - '**/*'
       cache:
