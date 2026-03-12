@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 class LearningState(BaseModel):
     student_id: str
@@ -9,3 +9,5 @@ class LearningState(BaseModel):
     struggle_duration: int = Field(0, description="Seconds spent on current problem")
     conceptual_mastery: float = Field(0.0, ge=0.0, le=1.0)
     session_history: List[Dict[str, str]] = []
+
+LearningState.model_rebuild()
