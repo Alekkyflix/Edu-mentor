@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'standalone',  // ← THIS MUST BE HERE
     reactStrictMode: true,
     swcMinify: true,
     images: {
