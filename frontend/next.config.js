@@ -1,5 +1,3 @@
-const { withAmplifyHosting } = require('@aws-amplify/adapter-nextjs');
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
@@ -12,11 +10,10 @@ const nextConfig = {
         return [
             {
                 source: '/api/:path*',
-                destination: `${apiUrl}/:path*`, // Proxy to FastAPI backend
+                destination: `${apiUrl}/:path*`,
             },
         ];
     },
 };
 
-// Temporarily bypassing Sentry to confirm Amplify works
-module.exports = withAmplifyHosting(nextConfig);
+module.exports = nextConfig;
