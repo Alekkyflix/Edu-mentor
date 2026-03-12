@@ -18,4 +18,5 @@ const nextConfig = {
     },
 };
 
+// Temporarily bypassing Sentry to confirm Amplify works
 module.exports = withAmplifyHosting(nextConfig);
