@@ -11,8 +11,13 @@ applications:
           commands:
             - nvm use 20
             - npm run build
+            - mkdir -p .amplify-hosting/compute/default
+            - cp -r .next .amplify-hosting/compute/default/.next
+            - cp -r public .amplify-hosting/static || true
+            - cp package.json .amplify-hosting/compute/default/
+            - echo '{"version":1,"routes":[{"path":"/_next/static/*","target":{"kind":"Static"}},{"path":"/*","target":{"kind":"Compute","src":"default"}}],"computeResources":[{"name":"default","runtime":"nodejs18.x","entrypoint":"server.js"}]}' > .amplify-hosting/deploy-manifest.json
       artifacts:
-        baseDirectory: .next
+        baseDirectory: .amplify-hosting
         files:
           - '**/*'
       cache:
