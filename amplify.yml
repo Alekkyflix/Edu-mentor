@@ -12,10 +12,12 @@ applications:
             - nvm use 20
             - npm run build
             - mkdir -p .amplify-hosting/compute/default
+            - mkdir -p .amplify-hosting/static
             - cp -r .next .amplify-hosting/compute/default/.next
-            - cp -r public .amplify-hosting/static || true
+            - cp -r public/* .amplify-hosting/static/ || true
             - cp package.json .amplify-hosting/compute/default/
-            - echo '{"version":1,"routes":[{"path":"/_next/static/*","target":{"kind":"Static"}},{"path":"/*","target":{"kind":"Compute","src":"default"}}],"computeResources":[{"name":"default","runtime":"nodejs18.x","entrypoint":"server.js"}]}' > .amplify-hosting/deploy-manifest.json
+            - cp -r node_modules .amplify-hosting/compute/default/node_modules
+            - echo '{\"version\":1,\"routes\":[{\"path\":\"/api/<*>\",\"target\":{\"kind\":\"Compute\",\"src\":\"default\"}},{\"path\":\"/_next/image\",\"target\":{\"kind\":\"Compute\",\"src\":\"default\"}},{\"path\":\"/_next/static/<*>\",\"target\":{\"kind\":\"Static\"}},{\"path\":\"/static/<*>\",\"target\":{\"kind\":\"Static\"}},{\"path\":\"/<*>\",\"target\":{\"kind\":\"Compute\",\"src\":\"default\"}}],\"computeResources\":[{\"name\":\"default\",\"runtime\":\"nodejs18.x\",\"entrypoint\":\".next/standalone/server.js\"}],\"framework\":{\"name\":\"next\",\"version\":\"14.2.35\"}}' > .amplify-hosting/deploy-manifest.json
       artifacts:
         baseDirectory: .amplify-hosting
         files:
@@ -23,4 +25,4 @@ applications:
       cache:
         paths:
           - node_modules/**/*
-          - .next/cache/**/*
+          - .next/cache/**/*"
