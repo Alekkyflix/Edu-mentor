@@ -1,0 +1,27 @@
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - nvm use 20
+            - npm ci
+        build:
+          commands:
+            - nvm use 20
+            - npm run build
+            - mkdir -p .amplify-hosting/compute/default
+            - mkdir -p .amplify-hosting/static
+            - cp -r .next/standalone/. .amplify-hosting/compute/default/
+            - cp -r .next/static .amplify-hosting/compute/default/.next/static
+            - cp -r public/. .amplify-hosting/static/ || true
+            - node -e "require('fs').writeFileSync('.amplify-hosting/deploy-manifest.json', JSON.stringify({version:1,routes:[{path:'/api/<*>',target:{kind:'Compute',src:'default'}},{path:'/_next/image',target:{kind:'Compute',src:'default'}},{path:'/_next/static/<*>',target:{kind:'Static'}},{path:'/static/<*>',target:{kind:'Static'}},{path:'/<*>',target:{kind:'Compute',src:'default'}}],computeResources:[{name:'default',runtime:'nodejs18.x',entrypoint:'server.js'}],framework:{name:'next',version:'14.2.35'}}))"
+      artifacts:
+        baseDirectory: .amplify-hosting
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
