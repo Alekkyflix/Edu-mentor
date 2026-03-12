@@ -16,7 +16,7 @@ applications:
             - cp -r .next/standalone/. .amplify-hosting/compute/default/
             - cp -r .next/static .amplify-hosting/compute/default/.next/static
             - cp -r public/. .amplify-hosting/static/ || true
-            - node -e "require('fs').writeFileSync('.amplify-hosting/deploy-manifest.json', JSON.stringify({version:1,routes:[{path:'/api/*',target:{kind:'Compute',src:'default'}},{path:'/_next/image',target:{kind:'Compute',src:'default'}},{path:'/_next/static/*',target:{kind:'Static'}},{path:'/static/*',target:{kind:'Static'}},{path:'/*',target:{kind:'Compute',src:'default'}}],computeResources:[{name:'default',runtime:'nodejs18.x',entrypoint:'server.js'}],framework:{name:'next',version:'14.2.35'}}))"
+            - node -e "require('fs').writeFileSync('.amplify-hosting/deploy-manifest.json', JSON.stringify({version:1,routes:[{path:'/api/*',target:{kind:'Compute',src:'default'}},{path:'/_next/image',target:{kind:'Compute',src:'default'}},{path:'/_next/static/*',target:{kind:'Static'}},{path:'/static/*',target:{kind:'Static'}},{path:'/*',target:{kind:'Compute',src:'default'}}],computeResources:[{name:'default',runtime:'nodejs20.x',entrypoint:'server.js'}],framework:{name:'next',version:'14.2.35'}}))"
       artifacts:
         baseDirectory: .amplify-hosting
         files:
