@@ -1,7 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -283,7 +281,6 @@ export default function ChatPage() {
         if (saved) {
             setAgentName(saved);
             setAgentEmoji(savedEmoji || AGENT_EMOJIS[0]);
-            // Show welcome message with saved name
             setMessages([{
                 id: '1',
                 text: `Habari! I'm **${saved}**, your AI learning mentor. 🔥\n\nAsk me anything — fractions, algebra, science, Kiswahili — I'm here to guide you. What would you like to explore today?`,
@@ -292,41 +289,50 @@ export default function ChatPage() {
                 agentName: saved,
             }]);
         } else {
-            // First time — show the name picker modal
             setShowNameModal(true);
         }
     }, []);
 
-    // ── Backend connection monitor ───────────────────────────────────────────
+    // ── Backend connection monitor (polls max 3 times then stops) ───────────────
     useEffect(() => {
-        let failureCount = 0;
+        let attempts = 0;
+        const MAX_ATTEMPTS = 2;
+        let interval: ReturnType<typeof setInterval>;
+
         const checkBackend = async () => {
+            attempts++;
             try {
-                const res = await fetch('/api/', { cache: 'no-store' });
-                if (res.ok) {
+                const res = await fetch('/api/health', { cache: 'no-store' });
+                // 200 or 404 both mean the server is reachable
+                if (res.status < 500) {
                     setBackendStatus('online');
-                    failureCount = 0; // Reset on success
-                } else {
-                    failureCount++;
-                    if (failureCount >= 3) {
-                        setBackendStatus('offline');
-                        clearInterval(interval);
-                    }
+                    clearInterval(interval);
+                    return;
+                }
+                if (attempts >= MAX_ATTEMPTS) {
+                    setBackendStatus('offline');
+                    clearInterval(interval);
                 }
             } catch (_) {
-                failureCount++;
-                if (failureCount >= 3) {
+                if (attempts >= MAX_ATTEMPTS) {
                     setBackendStatus('offline');
                     clearInterval(interval);
                 }
             }
         };
 
-        // Check initially
+        // Check once immediately
         checkBackend();
 
-        // Check every 5 seconds
-        const interval = setInterval(checkBackend, 5000);
+        // Then every 5s, but stop after MAX_ATTEMPTS
+        interval = setInterval(() => {
+            if (attempts >= MAX_ATTEMPTS) {
+                clearInterval(interval);
+                return;
+            }
+            checkBackend();
+        }, 5000);
+
         return () => clearInterval(interval);
     }, []);
 
@@ -423,9 +429,6 @@ export default function ChatPage() {
 
         const agentMsgId = (Date.now() + 1).toString();
         try {
-            // Use the relative path to leverage Next.js rewrites:
-            // Local dev  →  http://localhost:8000/chat
-            // Production →  ${NEXT_PUBLIC_API_URL}/chat
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
