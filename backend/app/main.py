@@ -106,6 +106,10 @@ class ChatResponse(BaseModel):
 def health_check():
     return {"status": "active", "system": "EduMentor AI", "models": "Amazon Nova (Lite/Pro/Micro)"}
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 @app.post("/chat", response_model=ChatResponse)
 def chat_endpoint(request: ChatRequest):
     """
