@@ -5,81 +5,212 @@
 /* ── Google Fonts ─────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Text:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── CSS Variables (Claude-inspired adaptive palette) ────────────────────────── */
-:root {
-  /* Light Mode Defaults */
+/* ── CSS Variables & Multi-Theme System ────────────────────────── */
+
+/* 1. Temple Sunset (Default) */
+:root, [data-theme="sunset"] {
+  --bg-gradient:    linear-gradient(145deg, #F4F2EC 0%, #EAE5DE 40%, #E8C1A5 100%);
+  --bg-base:        #EAE5DE;
+  --bg-surface:     #FFFFFF;
+  --bg-hover:       #E0D9D0;
+  --bg-active:      #D4CCC2;
+  --glass-bg:       rgba(244,242,236,0.7);
+  --sidebar-width:  260px;
+  --border:         rgba(0,0,0,0.06);
+  --border-strong:  rgba(0,0,0,0.12);
+  --text-primary:   #21282D;
+  --text-secondary: #57656E;
+  --text-muted:     #84929C;
+  --accent:         #C66831;
+  --accent-soft:    rgba(198,104,49,0.12);
+  --accent-2:       #84929C;       
+  --accent-3:       #EAB67D;       
+  --brand:          #C66831;
+  --brand-soft:     rgba(198,104,49,0.15);
+  --xp-gold:        #DBA05C;
+  --streak-orange:  #C66831;
+  --struggle-low:   #84929C;
+  --struggle-mid:   #DBA05C;
+  --struggle-high:  #B54D41;
+  
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px; --radius-pill: 9999px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08); --shadow-md: 0 4px 12px rgba(0,0,0,.15); --shadow-lg: 0 8px 32px rgba(0,0,0,.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root, [data-theme="sunset"] {
+    --bg-gradient:    linear-gradient(145deg, #19242C 0%, #202A32 50%, #683011 100%);
+    --bg-base:        #19242C;
+    --bg-surface:     #233038;
+    --bg-hover:       #2A3842;
+    --bg-active:      #33434E;
+    --glass-bg:       rgba(25,36,44,0.65);
+    --border:         rgba(255,255,255,0.06);
+    --border-strong:  rgba(255,255,255,0.12);
+    --text-primary:   #EAE3D9;
+    --text-secondary: #90A0AA;
+    --text-muted:     #637480;
+    --accent:         #D6824D;
+    --accent-soft:    rgba(214,130,77,0.15);
+    --accent-2:       #E3B68A;
+    --brand:          #D6824D;
+    --brand-soft:     rgba(214,130,77,0.18);
+    --xp-gold:        #F0BE6C;
+    --streak-orange:  #E66E3C;
+    --struggle-low:   #90A0AA;
+    --struggle-mid:   #F0BE6C;
+    --struggle-high:  #D45649;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.5); --shadow-md: 0 4px 12px rgba(0,0,0,.7); --shadow-lg: 0 8px 32px rgba(0,0,0,.9);
+  }
+}
+
+/* 2. Sleek Frost */
+[data-theme="sleek"] {
+  --bg-gradient:    radial-gradient(circle at top left, #F9FBFB, #E8F0F2);
+  --bg-base:        #E8F0F2;
+  --bg-surface:     #FFFFFF;
+  --bg-hover:       #DCE6EA;
+  --bg-active:      #CFDBE0;
+  --glass-bg:       rgba(249,251,251,0.7);
+  --border:         rgba(0,0,0,0.06);
+  --border-strong:  rgba(0,0,0,0.12);
+  --text-primary:   #151E22;
+  --text-secondary: #475C66;
+  --text-muted:     #7B96A0;
+  --accent:         #688A96;
+  --accent-soft:    rgba(104,138,150,0.12);
+  --accent-2:       #8FB3BF;       
+  --brand:          #688A96;
+  --brand-soft:     rgba(104,138,150,0.15);
+  --xp-gold:        #D4A84B;
+  --streak-orange:  #D67B54;
+  --struggle-low:   #688A96;
+  --struggle-mid:   #D4A84B;
+  --struggle-high:  #B8625B;
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="sleek"] {
+    --bg-gradient:    radial-gradient(circle at top right, #1A262E 0%, #05090C 100%);
+    --bg-base:        #05090C;
+    --bg-surface:     #121C22;
+    --bg-hover:       #1D2B33;
+    --bg-active:      #263740;
+    --glass-bg:       rgba(5,9,12,0.7);
+    --border:         rgba(255,255,255,0.06);
+    --border-strong:  rgba(255,255,255,0.12);
+    --text-primary:   #EAF1F3;
+    --text-secondary: #9EB5BE;
+    --text-muted:     #688A96;
+    --accent:         #B8D4DB;
+    --accent-soft:    rgba(184,212,219,0.15);
+    --accent-2:       #7B96A0;       
+    --brand:          #B8D4DB;
+    --brand-soft:     rgba(184,212,219,0.18);
+    --xp-gold:        #E2BC5A;
+    --streak-orange:  #E8896A;
+    --struggle-low:   #7B96A0;
+    --struggle-mid:   #E2BC5A;
+    --struggle-high:  #D46B63;
+  }
+}
+
+/* 3. Classic Warm (Claude-like) */
+[data-theme="claude"] {
+  --bg-gradient:    linear-gradient(180deg, #FAF9F5 0%, #F5F3EC 100%);
   --bg-base:        #FAF9F5;
   --bg-surface:     #FFFFFF;
   --bg-hover:       #F2EBE1;
   --bg-active:      #EBE5DB;
   --glass-bg:       rgba(250,249,245,0.7);
-  --sidebar-width:  260px;
-
   --border:         rgba(0,0,0,0.08);
   --border-strong:  rgba(0,0,0,0.12);
-
   --text-primary:   #23221F;
   --text-secondary: #5C5852;
   --text-muted:     #8F8B85;
-
-  --accent:         #D97757;       /* Claude burnt orange */
+  --accent:         #D97757;
   --accent-soft:    rgba(217,119,87,0.12);
-  --accent-2:       #6B8E7D;       /* Muted green */
-  --accent-3:       #D97757;       
-
+  --accent-2:       #6B8E7D;       
   --brand:          #D97757;
   --brand-soft:     rgba(217,119,87,0.15);
-
-  /* EduMentor gamification colours */
   --xp-gold:        #DFAF42;
   --streak-orange:  #D97757;
   --struggle-low:   #6B8E7D;
   --struggle-mid:   #DFAF42;
   --struggle-high:  #B55A52;
-
-  --radius-sm:      8px;
-  --radius-md:      12px;
-  --radius-lg:      16px;
-  --radius-xl:      24px;
-  --radius-pill:    9999px;
-
-  --shadow-sm:  0 1px 3px rgba(0,0,0,.08);
-  --shadow-md:  0 4px 12px rgba(0,0,0,.1);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,.15);
 }
-
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark Mode Overrides */
+  [data-theme="claude"] {
+    --bg-gradient:    linear-gradient(180deg, #292826 0%, #232220 100%);
     --bg-base:        #292826;
     --bg-surface:     #32302D;
     --bg-hover:       #3D3A37;
     --bg-active:      #45413D;
     --glass-bg:       rgba(41,40,38,0.7);
-
     --border:         rgba(255,255,255,0.08);
     --border-strong:  rgba(255,255,255,0.15);
-
     --text-primary:   #EBE5DF;
     --text-secondary: #A39E99;
     --text-muted:     #736F6A;
-
     --accent:         #D97757;       
     --accent-soft:    rgba(217,119,87,0.15);
     --accent-2:       #81A492;       
-
     --brand:          #D97757;
     --brand-soft:     rgba(217,119,87,0.18);
-
     --xp-gold:        #F0C459;
     --streak-orange:  #E8896A;
     --struggle-low:   #81A492;
     --struggle-mid:   #F0C459;
     --struggle-high:  #D46B63;
+  }
+}
 
-    --shadow-sm:  0 1px 3px rgba(0,0,0,.4);
-    --shadow-md:  0 4px 12px rgba(0,0,0,.5);
-    --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
+/* 4. Cyber Neon */
+[data-theme="neon"] {
+  --bg-gradient:    radial-gradient(circle at top right, #3A234A 0%, #15101E 100%);
+  --bg-base:        #15101E; /* Default to dark even in light mode, neon looks best dark */
+  --bg-surface:     #1E162D;
+  --bg-hover:       #291E3B;
+  --bg-active:      #35264B;
+  --glass-bg:       rgba(21,16,30,0.7);
+  --border:         rgba(181,52,230,0.2);
+  --border-strong:  rgba(181,52,230,0.4);
+  --text-primary:   #F2E8FA;
+  --text-secondary: #BFA8DA;
+  --text-muted:     #866CA3;
+  --accent:         #B534E6;
+  --accent-soft:    rgba(181,52,230,0.15);
+  --accent-2:       #E63499;       
+  --brand:          #B534E6;
+  --brand-soft:     rgba(181,52,230,0.18);
+  --xp-gold:        #E6B834;
+  --streak-orange:  #E63499;
+  --struggle-low:   #34E6B5;
+  --struggle-mid:   #E6B834;
+  --struggle-high:  #E63434;
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="neon"] {
+    --bg-gradient:    radial-gradient(circle at top right, #240733 0%, #0D0914 100%);
+    --bg-base:        #0D0914;
+    --bg-surface:     #161021;
+    --bg-hover:       #20152F;
+    --bg-active:      #2A1D3D;
+    --glass-bg:       rgba(13,9,20,0.7);
+    --border:         rgba(181,52,230,0.25);
+    --border-strong:  rgba(181,52,230,0.5);
+    --text-primary:   #F9F5FC;
+    --text-secondary: #CBB5E3;
+    --text-muted:     #967FB3;
+    --accent:         #D06CF2;
+    --accent-soft:    rgba(208,108,242,0.15);
+    --accent-2:       #F26CBC;       
+    --brand:          #D06CF2;
+    --brand-soft:     rgba(208,108,242,0.18);
+    --xp-gold:        #F2CA6C;
+    --streak-orange:  #F26CBC;
+    --struggle-low:   #6CF2CA;
+    --struggle-mid:   #F2CA6C;
+    --struggle-high:  #F26C6C;
   }
 }
 
@@ -92,7 +223,7 @@
   body {
     height: 100%;
     font-family: 'Google Sans Text', 'Inter', -apple-system, sans-serif;
-    background: var(--bg-base);
+    background: var(--bg-gradient); /* Applied the new gradient here! */
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -148,7 +279,7 @@
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
-    background: var(--bg-base);
+    background: transparent; /* Changed from bg-base to allow the body gradient to show through */
   }
 
   /* Top bar */

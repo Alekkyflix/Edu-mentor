@@ -305,13 +305,7 @@ export default function ChatPage() {
         if (saved) {
             setAgentName(saved);
             setAgentEmoji(savedEmoji || AGENT_EMOJIS[0]);
-            setMessages([{
-                id: '1',
-                text: `Habari! I'm **${saved}**, your AI learning mentor. 🔥\n\nAsk me anything — fractions, algebra, science, Kiswahili — I'm here to guide you. What would you like to explore today?`,
-                sender: 'agent',
-                timestamp: new Date(),
-                agentName: saved,
-            }]);
+            // Do not inject an initial message to show the clean blank state
         } else {
             setShowNameModal(true);
         }
@@ -441,6 +435,18 @@ export default function ChatPage() {
             setSessions(newSessions);
         } catch (_) {}
     }, []);
+
+    const loadSession = (session: any) => {
+        if (!session.messages) return;
+        const restoredMessages: Message[] = session.messages.map((m: any, idx: number) => ({
+            id: `restored-${Date.now()}-${idx}`,
+            text: m.text,
+            sender: m.sender as 'user' | 'agent',
+            timestamp: new Date(),
+        }));
+        setMessages(restoredMessages);
+        if (window.innerWidth < 768) setSidebarOpen(false);
+    };
 
     const handleSend = useCallback(async () => {
         const trimmed = input.trim();
@@ -626,9 +632,9 @@ export default function ChatPage() {
                                             if (match) {
                                                 const codeStr = String(children).replace(/\n$/, '')
                                                 return (
-                                                    <div style={{ margin: '14px 0', padding: '12px 16px', border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-active)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ margin: '14px 0', padding: '12px 16px', border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-surface)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(66, 133, 244, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4285f4' }}>
+                                                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--brand-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)' }}>
                                                                 <span style={{ fontSize: 16 }}>{'</>'}</span>
                                                             </div>
                                                             <div>
@@ -636,7 +642,10 @@ export default function ChatPage() {
                                                                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{codeStr.split('\n').length} lines of code</div>
                                                             </div>
                                                         </div>
-                                                        <button onClick={() => setCodePanelContent({ code: codeStr, language: match[1] })} className="btn-gem" style={{ padding: '6px 14px', fontSize: 12, borderRadius: 6 }}>
+                                                        <button onClick={() => {
+                                                            setCodePanelContent({ code: codeStr, language: match[1] });
+                                                            setSidebarOpen(false);
+                                                        }} className="btn-gem" style={{ padding: '6px 14px', fontSize: 12, borderRadius: 6 }}>
                                                             View Code
                                                         </button>
                                                     </div>
@@ -709,13 +718,8 @@ export default function ChatPage() {
                                 <button
                                     onClick={() => {
                                         if (agentName) {
-                                            setMessages([{
-                                                id: Date.now().toString(),
-                                                text: `Sasa! Ready for a new session. What shall we tackle? 🚀`,
-                                                sender: 'agent',
-                                                timestamp: new Date(),
-                                                agentName: agentName,
-                                            }]);
+                                            setMessages([]);
+                                            setCodePanelContent(null);
                                         }
                                     }}
                                     className="gem-icon-btn"
@@ -839,7 +843,12 @@ export default function ChatPage() {
                                 {sessions.length > 0 ? sessions.map((s, i) => {
                                     const preview = s.messages && s.messages.length > 0 ? s.messages[0].text : 'New chat';
                                     return (
-                                        <div key={i} className={`gem-history-item ${i === 0 ? 'active' : ''}`}>
+                                        <div 
+                                            key={i} 
+                                            className={`gem-history-item`}
+                                            onClick={() => loadSession(s)}
+                                            style={{ cursor: 'pointer' }}
+                                        >
                                             <div style={{ fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                                 {preview}
                                             </div>
@@ -914,11 +923,52 @@ export default function ChatPage() {
                     </header>
 
                     {/* Messages */}
-                    <div className="gem-messages">
-                        <div className="gem-messages-inner">
-                            <AnimatePresence initial={false}>
-                                {renderedMessages}
-                            </AnimatePresence>
+                    <div className="gem-messages" style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div className="gem-messages-inner" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            {messages.length === 0 ? (
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', textAlign: 'center', paddingBottom: 40 }}>
+                                    <div style={{ marginBottom: 24, padding: '6px 16px', background: 'var(--bg-hover)', borderRadius: 9999, fontSize: 13, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8, border: '1px solid var(--border-strong)', boxShadow: 'var(--shadow-sm)' }}>
+                                        <span>👑 Level {Math.floor((xp || 0) / 500) + 1} Scholar</span>
+                                        <div style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--border)' }} />
+                                        <span style={{ color: 'var(--streak-orange)', fontWeight: 600 }}>🔥 {streak} Day Streak</span>
+                                    </div>
+                                    <div style={{ fontSize: '3.5rem', marginBottom: 16, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))' }}>
+                                        {agentEmoji}
+                                    </div>
+                                    <h1 style={{ fontFamily: "'Google Sans', Outfit, sans-serif", fontSize: '2rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 40, letterSpacing: '-0.02em', lineHeight: 1.3 }}>
+                                        Sasa! I'm <span style={{ color: 'var(--brand)' }}>{agentName}</span>.<br />Ready to level up?
+                                    </h1>
+                                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 680 }}>
+                                        {[
+                                            { icon: '➗', label: 'Math Problem', prompt: 'I want to solve a math problem...' },
+                                            { icon: '💡', label: 'Concept breakdown', prompt: 'Can you break down the concept of...' },
+                                            { icon: '📝', label: 'Quiz me', prompt: 'Can you quiz me on...' },
+                                            { icon: '🧑‍💻', label: 'Code review', prompt: 'I need a code review for...' },
+                                            { icon: '📈', label: 'Study plan', prompt: 'Help me create a study plan for...' }
+                                        ].map(chip => (
+                                            <button
+                                                key={chip.label}
+                                                onClick={() => { setInput(chip.prompt); inputRef.current?.focus(); }}
+                                                className="gem-icon-btn hover:!border-[var(--brand)] hover:!text-[var(--text-primary)]"
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: 8,
+                                                    padding: '12px 20px', background: 'var(--bg-surface)',
+                                                    border: '1px solid var(--border)', borderRadius: 16,
+                                                    color: 'var(--text-secondary)', fontSize: 14,
+                                                    boxShadow: 'var(--shadow-sm)', transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                <span style={{ fontSize: 18 }}>{chip.icon}</span>
+                                                <span style={{ fontWeight: 500 }}>{chip.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                <AnimatePresence initial={false}>
+                                    {renderedMessages}
+                                </AnimatePresence>
+                            )}
 
                             {/* Typing indicator */}
                             {isLoading && !isStreaming && (
@@ -944,14 +994,15 @@ export default function ChatPage() {
                     </div>
 
                     {/* Quick chips */}
-                    <div
-                        className="hide-scrollbar"
-                        style={{
-                            maxWidth: 820, width: '100%',
-                            margin: '0 auto', padding: '0 24px 8px',
-                            display: 'flex', gap: 8, overflowX: 'auto',
-                        }}
-                    >
+                    {messages.length > 0 && (
+                        <div
+                            className="hide-scrollbar"
+                            style={{
+                                maxWidth: 820, width: '100%',
+                                margin: '0 auto', padding: '0 24px 8px',
+                                display: 'flex', gap: 8, overflowX: 'auto',
+                            }}
+                        >
                         {[
                             { label: '💡 Give me a hint',       value: 'Give me a hint' },
                             { label: '📖 Explain step by step', value: 'Explain this step by step' },
@@ -966,7 +1017,8 @@ export default function ChatPage() {
                                 {chip.label}
                             </button>
                         ))}
-                    </div>
+                        </div>
+                    )}
 
                     {/* Input area */}
                     <div className="gem-input-area">
@@ -1110,8 +1162,8 @@ export default function ChatPage() {
                                     </button>
                                 </div>
                             </div>
-                            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#0d1117' }}>
-                                <pre style={{ margin: 0, color: '#c9d1d9', fontSize: '13px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: 'var(--bg-hover)' }}>
+                                <pre style={{ margin: 0, color: 'var(--text-primary)', fontSize: '13.5px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
                                     {codePanelContent.code}
                                 </pre>
                             </div>

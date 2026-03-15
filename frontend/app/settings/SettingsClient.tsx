@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     ArrowLeft, User, MessageSquare, Sparkles,
-    ChevronRight, Trash2, Check, Pencil
+    ChevronRight, Trash2, Check, Pencil, Palette
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -69,7 +69,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
 
 // ─── Settings Page ─────────────────────────────────────────────────────────────
 export default function SettingsPage() {
-    const [activeTab, setActiveTab] = useState<'account' | 'history' | 'agent'>('account');
+    const [activeTab, setActiveTab] = useState<'account' | 'history' | 'agent' | 'theme'>('account');
     const [sessions, setSessions]   = useState<ChatSession[]>([]);
 
     // Profile
@@ -88,6 +88,9 @@ export default function SettingsPage() {
     const [agentNameInput, setAgentNameInput] = useState('');
     const [editingAgent, setEditingAgent] = useState(false);
     const [agentSaved, setAgentSaved]     = useState(false);
+
+    // Theme
+    const [theme, setTheme] = useState('sunset');
 
     // ── Load from localStorage ─────────────────────────────────────────────────
     useEffect(() => {
@@ -117,6 +120,9 @@ export default function SettingsPage() {
         setAgentName(savedAgent);
         setAgentEmoji(savedEmoji);
         setAgentNameInput(savedAgent);
+
+        const savedTheme = localStorage.getItem('edu_theme') || 'sunset';
+        setTheme(savedTheme);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -149,8 +155,15 @@ export default function SettingsPage() {
     const tabs = [
         { id: 'account' as const, label: 'Account',   icon: <User size={15} /> },
         { id: 'agent'   as const, label: 'AI Tutor',  icon: <Sparkles size={15} /> },
+        { id: 'theme'   as const, label: 'Theme',     icon: <Palette size={15} /> },
         { id: 'history' as const, label: 'History',   icon: <MessageSquare size={15} /> },
     ];
+
+    const changeTheme = (newTheme: string) => {
+        setTheme(newTheme);
+        localStorage.setItem('edu_theme', newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+    };
 
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)', overflowY: 'auto' }}>
@@ -374,6 +387,27 @@ export default function SettingsPage() {
                                             {em}
                                         </button>
                                     ))}
+                                    <input
+                                        type="text"
+                                        maxLength={2}
+                                        placeholder="+"
+                                        value={!AGENT_EMOJIS.includes(agentEmoji) ? agentEmoji : ''}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val.includes('🍑') || val.includes('🍆') || val.includes('💦') || val.includes('🖕')) {
+                                                alert("Inappropriate emojis are not allowed! Let's keep it safe. 🎓");
+                                                return;
+                                            }
+                                            if (val) setAgentEmoji(val);
+                                        }}
+                                        style={{
+                                            width: 42, height: 42, borderRadius: 10, fontSize: '1.3rem', textAlign: 'center',
+                                            border: '2px dashed var(--border-strong)',
+                                            background: !AGENT_EMOJIS.includes(agentEmoji) ? 'var(--accent-soft)' : 'var(--bg-hover)',
+                                            color: 'var(--text-primary)', outline: 'none', transition: 'all .15s'
+                                        }}
+                                        title="Use your own emoji!"
+                                    />
                                 </div>
 
                                 <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: 8 }}>Agent name</p>
@@ -433,7 +467,7 @@ export default function SettingsPage() {
                                     {agentSaved ? (
                                         <><Check size={15} /> Saved!</>
                                     ) : (
-                                        <>Save — Meet {agentNameInput.trim() || 'your AI'}</>
+                                        <>Save: Meet {agentNameInput.trim() || 'your AI'}!</>
                                     )}
                                 </button>
                             </div>
@@ -447,6 +481,66 @@ export default function SettingsPage() {
                                 <Link href="/chat" style={{ fontSize: '13px', color: 'var(--accent)', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 10 }}>
                                     Go to chat <ChevronRight size={13} />
                                 </Link>
+                            </div>
+                        </Section>
+                    </motion.div>
+                )}
+
+                {/* ══ THEME TAB ══════════════════════════════════════════════ */}
+                {activeTab === 'theme' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        <Section title="Appearance">
+                            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                    Choose a beautiful colour palette to personalise your study space. EduMentor will automatically adapt these themes to your system's light or dark mode.
+                                </p>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                    {[
+                                        { id: 'sunset', name: 'Temple Sunset', desc: 'Warm sandstone and burning orange', color1: '#19242C', color2: '#C66831' },
+                                        { id: 'sleek', name: 'Sleek Frost', desc: 'Deep space slate and cool icy blue', color1: '#05090C', color2: '#688A96' },
+                                        { id: 'claude', name: 'Classic Warm', desc: 'Minimalist sand and soft rustic hues', color1: '#FAF9F5', color2: '#D97757' },
+                                        { id: 'neon', name: 'Cyber Neon', desc: 'Vibrant midnight and striking purple', color1: '#0D0914', color2: '#B534E6' }
+                                    ].map(th => {
+                                        const isActive = theme === th.id;
+                                        return (
+                                            <button
+                                                key={th.id}
+                                                onClick={() => changeTheme(th.id)}
+                                                style={{
+                                                    background: 'var(--bg-surface)',
+                                                    border: `2px solid ${isActive ? 'var(--brand)' : 'var(--border)'}`,
+                                                    borderRadius: 14, padding: '14px', textAlign: 'left',
+                                                    display: 'flex', flexDirection: 'column', gap: 12,
+                                                    cursor: 'pointer', transition: 'all 0.2s', position: 'relative',
+                                                    overflow: 'hidden'
+                                                }}
+                                                className="hover:scale-[1.02]"
+                                            >
+                                                {/* Preview visual */}
+                                                <div style={{ 
+                                                    height: 70, width: '100%', borderRadius: 8,
+                                                    background: `linear-gradient(135deg, ${th.color1}, ${th.color2})`,
+                                                    opacity: 0.9, position: 'relative'
+                                                }}>
+                                                    {/* little mockup bubbles */}
+                                                    <div style={{ position: 'absolute', bottom: 10, left: 10, width: '40%', height: 12, background: 'rgba(255,255,255,0.2)', borderRadius: 4 }} />
+                                                    <div style={{ position: 'absolute', bottom: 28, right: 10, width: '30%', height: 12, background: 'rgba(255,255,255,0.4)', borderRadius: 4 }} />
+                                                </div>
+                                                
+                                                <div style={{ textAlign: 'left' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{th.name}</span>
+                                                        {isActive && <Check size={16} color="var(--brand)" />}
+                                                    </div>
+                                                    <span style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginTop: 2 }}>
+                                                        {th.desc}
+                                                    </span>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </Section>
                     </motion.div>

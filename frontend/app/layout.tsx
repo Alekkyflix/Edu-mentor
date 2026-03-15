@@ -23,6 +23,14 @@ export default function RootLayout({
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
                     rel="stylesheet"
                 />
+                <script dangerouslySetInnerHTML={{
+                    __html: `
+                        try {
+                            var theme = localStorage.getItem('edu_theme') || 'sunset';
+                            document.documentElement.setAttribute('data-theme', theme);
+                        } catch(e) {}
+                    `
+                }} />
             </head>
             <body className="antialiased">
                 {children}
