@@ -97,6 +97,7 @@ class StrandsClient:
         user_content: List[Dict[str, Any]] = [{"text": enriched_input}]
         
         if image_base64:
+            print(f"[StrandsSDK] Image detected! Base64 length: {len(image_base64)}")
             try:
                 # Expecting data string like "data:image/jpeg;base64,...""
                 if image_base64.startswith('data:image'):

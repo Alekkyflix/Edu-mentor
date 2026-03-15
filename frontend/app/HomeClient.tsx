@@ -133,7 +133,7 @@ export default function HomePage() {
                             letterSpacing: '0.04em',
                         }}
                     >
-                        🔥 Built for Nairobi students
+                        🔥 Built for students
                     </span>
                 </motion.div>
 

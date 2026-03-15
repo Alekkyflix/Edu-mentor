@@ -20,6 +20,7 @@ interface Message {
     sender: 'user' | 'agent';
     timestamp: Date;
     agentName?: string;
+    attachmentUrl?: string;
 }
 
 interface ChatSession {
@@ -278,6 +279,7 @@ export default function ChatPage() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [sessions, setSessions]       = useState<any[]>([]);
     const [attachment, setAttachment]   = useState<{ url: string, file: File } | null>(null);
+    const [codePanelContent, setCodePanelContent] = useState<{ code: string; language: string } | null>(null);
 
     // ── Refs ───────────────────────────────────────────────────────────────────
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -445,7 +447,7 @@ export default function ChatPage() {
         if ((!trimmed && !attachment) || isLoading || isStreaming) return;
         if (isRecording && recognitionRef.current) { recognitionRef.current.stop(); setIsRecording(false); }
 
-        const userMsg: Message = { id: Date.now().toString(), text: trimmed || '[Image Attached]', sender: 'user', timestamp: new Date() };
+        const userMsg: Message = { id: Date.now().toString(), text: trimmed || '[Image Attached]', sender: 'user', timestamp: new Date(), attachmentUrl: attachment?.url };
         setMessages(p => [...p, userMsg]);
         persistMessage(userMsg);
         setInput('');
@@ -543,10 +545,26 @@ export default function ChatPage() {
             setIsLoading(false);
             setIsStreaming(false);
         }
-    }, [input, isLoading, isStreaming, isRecording, persistMessage, agentName]);
+    }, [input, isLoading, isStreaming, isRecording, persistMessage, agentName, attachment]);
 
     const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    };
+
+    const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.type.indexOf('image') !== -1) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                if (file) {
+                    setAttachment({ url: URL.createObjectURL(file), file });
+                }
+                break;
+            }
+        }
     };
 
     // ── Memoised messages ─────────────────────────────────────────────────────
@@ -569,7 +587,23 @@ export default function ChatPage() {
                 {msg.sender === 'user' ? (
                     <div className="gem-msg-user my-2">
                         <div className="gem-msg-user-bubble">
-                            <p style={{ fontSize: '0.9375rem', lineHeight: 1.6 }}>{msg.text}</p>
+                            {msg.attachmentUrl && (
+                                <img 
+                                    src={msg.attachmentUrl} 
+                                    alt="User attachment" 
+                                    style={{ 
+                                        maxWidth: '280px', 
+                                        maxHeight: '180px', 
+                                        objectFit: 'contain', 
+                                        borderRadius: 8, 
+                                        marginBottom: msg.text !== '[Image Attached]' ? 8 : 0,
+                                        display: 'block'
+                                    }} 
+                                />
+                            )}
+                            {msg.text !== '[Image Attached]' && (
+                                <p style={{ fontSize: '0.9375rem', lineHeight: 1.6 }}>{msg.text}</p>
+                            )}
                         </div>
                     </div>
                 ) : (
@@ -585,6 +619,32 @@ export default function ChatPage() {
                                 <ReactMarkdown
                                     remarkPlugins={[remarkMath]}
                                     rehypePlugins={[rehypeKatex]}
+                                    components={{
+                                        code(props: any) {
+                                            const {children, className, node, ...rest} = props
+                                            const match = /language-(\w+)/.exec(className || '')
+                                            if (match) {
+                                                const codeStr = String(children).replace(/\n$/, '')
+                                                return (
+                                                    <div style={{ margin: '14px 0', padding: '12px 16px', border: '1px solid var(--border)', borderRadius: 10, background: 'var(--bg-active)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                                            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(66, 133, 244, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4285f4' }}>
+                                                                <span style={{ fontSize: 16 }}>{'</>'}</span>
+                                                            </div>
+                                                            <div>
+                                                                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{match[1].toUpperCase()} Snippet</span>
+                                                                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{codeStr.split('\n').length} lines of code</div>
+                                                            </div>
+                                                        </div>
+                                                        <button onClick={() => setCodePanelContent({ code: codeStr, language: match[1] })} className="btn-gem" style={{ padding: '6px 14px', fontSize: 12, borderRadius: 6 }}>
+                                                            View Code
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
+                                            return <code {...rest} className={className} style={{ background: 'var(--bg-active)', padding: '2px 4px', borderRadius: 4, fontFamily: 'monospace', fontSize: '0.9em', color: 'var(--text-primary)' }}>{children}</code>
+                                        }
+                                    }}
                                 >
                                     {msg.text}
                                 </ReactMarkdown>
@@ -926,6 +986,7 @@ export default function ChatPage() {
                                 value={input}
                                 onChange={e => setInput(e.target.value)}
                                 onKeyDown={handleKey}
+                                onPaste={handlePaste}
                                 placeholder={
                                     isRecording
                                         ? '🎙 Listening…'
@@ -991,6 +1052,72 @@ export default function ChatPage() {
                         </p>
                     </div>
                 </div>
+
+                {/* ══ CODE PANEL ════════════════════════════════════════════════ */}
+                <AnimatePresence>
+                    {codePanelContent && (
+                        <motion.aside
+                            initial={{ x: 400, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: 400, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                            style={{ 
+                                width: '400px', 
+                                borderLeft: '1px solid var(--border)', 
+                                background: 'var(--bg-surface)', 
+                                display: 'flex', 
+                                flexDirection: 'column',
+                                flexShrink: 0,
+                                zIndex: 50
+                            }}
+                        >
+                            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-base)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>{codePanelContent.language.toUpperCase()} Code</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                    <button
+                                        onClick={() => copyMessage('code', codePanelContent.code)}
+                                        className="gem-icon-btn"
+                                        style={{ padding: '6px' }}
+                                        title="Copy to clipboard"
+                                    >
+                                        {copiedId === 'code' ? <Check size={16} color="var(--accent-2)" /> : <Copy size={16} />}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const element = document.createElement('a');
+                                            const file = new Blob([codePanelContent.code], { type: 'text/plain' });
+                                            element.href = URL.createObjectURL(file);
+                                            element.download = `snippet.${codePanelContent.language || 'txt'}`;
+                                            document.body.appendChild(element);
+                                            element.click();
+                                            document.body.removeChild(element);
+                                        }}
+                                        className="gem-icon-btn"
+                                        style={{ padding: '6px' }}
+                                        title="Download file"
+                                    >
+                                        <span style={{ fontSize: '14px' }}>⬇️</span>
+                                    </button>
+                                    <div style={{ width: 1, height: 16, background: 'var(--border)', margin: '0 4px' }} />
+                                    <button
+                                        onClick={() => setCodePanelContent(null)}
+                                        className="gem-icon-btn"
+                                        style={{ padding: '6px' }}
+                                    >
+                                        <span style={{ fontSize: '18px', lineHeight: 1 }}>×</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#0d1117' }}>
+                                <pre style={{ margin: 0, color: '#c9d1d9', fontSize: '13px', fontFamily: 'monospace', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                                    {codePanelContent.code}
+                                </pre>
+                            </div>
+                        </motion.aside>
+                    )}
+                </AnimatePresence>
             </div>
         </>
     );

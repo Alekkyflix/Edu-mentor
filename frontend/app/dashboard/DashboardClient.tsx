@@ -2,6 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     Trophy, Flame, Star, Target, TrendingUp, Award,
@@ -52,11 +53,7 @@ const achievements = [
     { id: 9, title: 'Top 10 Scholar',      desc: 'Reach top 10 leaderboard',      icon: '👑', unlocked: false, xp: 500 },
 ];
 
-const stats = {
-    level: 5,
-    xp: 1250,
-    nextLevelXP: 1500,
-    streak: 7,
+const defaultStats = {
     totalProblems: 127,
     averageStruggle: 3.2,
     rank: 15,
@@ -133,6 +130,24 @@ function Panel({ title, icon, children }: {
 }
 
 export default function DashboardPage() {
+    const [xp, setXp] = useState(1250);
+    const [streak, setStreak] = useState(7);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        try {
+            const savedXp = localStorage.getItem('edu_xp');
+            if (savedXp) setXp(parseInt(savedXp, 10));
+            
+            const savedStreak = localStorage.getItem('edu_streak');
+            if (savedStreak) setStreak(parseInt(savedStreak, 10));
+        } catch (_) {}
+    }, []);
+
+    const level = Math.floor(xp / 500) + 1;
+    const nextLevelXP = level * 500;
+
     const tooltipStyle = {
         contentStyle: {
             backgroundColor: 'var(--bg-surface)',
@@ -142,6 +157,8 @@ export default function DashboardPage() {
             fontSize: 12,
         },
     };
+
+    if (!mounted) return null;
 
     return (
         <div
@@ -223,9 +240,9 @@ export default function DashboardPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                            <span style={{ fontWeight: 600 }}>Level {stats.level}</span>
+                            <span style={{ fontWeight: 600 }}>Level {level}</span>
                             <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                                {stats.xp} / {stats.nextLevelXP} XP
+                                {xp} / {nextLevelXP} XP
                             </span>
                         </div>
                         <div
@@ -237,7 +254,7 @@ export default function DashboardPage() {
                         >
                             <motion.div
                                 initial={{ width: 0 }}
-                                animate={{ width: `${(stats.xp / stats.nextLevelXP) * 100}%` }}
+                                animate={{ width: `${(xp / nextLevelXP) * 100}%` }}
                                 transition={{ duration: 0.9, ease: 'easeOut' }}
                                 style={{
                                     height: '100%',
@@ -258,10 +275,10 @@ export default function DashboardPage() {
                         marginBottom: 24,
                     }}
                 >
-                    <StatCard icon={<Flame size={22} />}   label="Current Streak"   value={`${stats.streak} days`} accent="var(--streak-orange)" />
-                    <StatCard icon={<Target size={22} />}  label="Problems Solved"  value={`${stats.totalProblems}`} accent="var(--accent)" />
-                    <StatCard icon={<Crown size={22} />}   label="Leaderboard Rank" value={`#${stats.rank}`} accent="var(--xp-gold)" />
-                    <StatCard icon={<Zap size={22} />}     label="Avg Struggle"     value={`${stats.averageStruggle}/5`} accent="var(--accent-2)" />
+                    <StatCard icon={<Flame size={22} />}   label="Current Streak"   value={`${streak} days`} accent="var(--streak-orange)" />
+                    <StatCard icon={<Target size={22} />}  label="Problems Solved"  value={`${defaultStats.totalProblems}`} accent="var(--accent)" />
+                    <StatCard icon={<Crown size={22} />}   label="Leaderboard Rank" value={`#${defaultStats.rank}`} accent="var(--xp-gold)" />
+                    <StatCard icon={<Zap size={22} />}     label="Avg Struggle"     value={`${defaultStats.averageStruggle}/5`} accent="var(--accent-2)" />
                 </div>
 
                 {/* ── Main content grid ──────────────────────────────────────── */}
