@@ -5,36 +5,37 @@
 /* ── Google Fonts ─────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&family=Google+Sans+Text:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* ── CSS Variables (Gemini-standard dark palette) ────────────────────────── */
+/* ── CSS Variables (Claude-inspired adaptive palette) ────────────────────────── */
 :root {
-  --bg-base:        #1e1f20;
-  --bg-surface:     #282a2c;
-  --bg-hover:       #303236;
-  --bg-active:      #35383c;
-  --glass-bg:       rgba(30,31,32,0.7);
+  /* Light Mode Defaults */
+  --bg-base:        #FAF9F5;
+  --bg-surface:     #FFFFFF;
+  --bg-hover:       #F2EBE1;
+  --bg-active:      #EBE5DB;
+  --glass-bg:       rgba(250,249,245,0.7);
   --sidebar-width:  260px;
 
-  --border:         rgba(255,255,255,0.06);
-  --border-strong:  rgba(255,255,255,0.12);
+  --border:         rgba(0,0,0,0.08);
+  --border-strong:  rgba(0,0,0,0.12);
 
-  --text-primary:   #e3e3e3;
-  --text-secondary: #9aa0a6;
-  --text-muted:     #5f6368;
+  --text-primary:   #23221F;
+  --text-secondary: #5C5852;
+  --text-muted:     #8F8B85;
 
-  --accent:         #8ab4f8;       /* Gemini blue */
-  --accent-soft:    rgba(138,180,248,0.15);
-  --accent-2:       #81c995;       /* green */
-  --accent-3:       #f28b82;       /* warm red */
+  --accent:         #D97757;       /* Claude burnt orange */
+  --accent-soft:    rgba(217,119,87,0.12);
+  --accent-2:       #6B8E7D;       /* Muted green */
+  --accent-3:       #D97757;       
 
-  --brand:          #4285f4;
-  --brand-soft:     rgba(66,133,244,0.18);
+  --brand:          #D97757;
+  --brand-soft:     rgba(217,119,87,0.15);
 
   /* EduMentor gamification colours */
-  --xp-gold:        #FFD23F;
-  --streak-orange:  #FF6B35;
-  --struggle-low:   #34D399;
-  --struggle-mid:   #FBBF24;
-  --struggle-high:  #F87171;
+  --xp-gold:        #DFAF42;
+  --streak-orange:  #D97757;
+  --struggle-low:   #6B8E7D;
+  --struggle-mid:   #DFAF42;
+  --struggle-high:  #B55A52;
 
   --radius-sm:      8px;
   --radius-md:      12px;
@@ -42,9 +43,44 @@
   --radius-xl:      24px;
   --radius-pill:    9999px;
 
-  --shadow-sm:  0 1px 3px rgba(0,0,0,.4);
-  --shadow-md:  0 4px 12px rgba(0,0,0,.5);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.1);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark Mode Overrides */
+    --bg-base:        #292826;
+    --bg-surface:     #32302D;
+    --bg-hover:       #3D3A37;
+    --bg-active:      #45413D;
+    --glass-bg:       rgba(41,40,38,0.7);
+
+    --border:         rgba(255,255,255,0.08);
+    --border-strong:  rgba(255,255,255,0.15);
+
+    --text-primary:   #EBE5DF;
+    --text-secondary: #A39E99;
+    --text-muted:     #736F6A;
+
+    --accent:         #D97757;       
+    --accent-soft:    rgba(217,119,87,0.15);
+    --accent-2:       #81A492;       
+
+    --brand:          #D97757;
+    --brand-soft:     rgba(217,119,87,0.18);
+
+    --xp-gold:        #F0C459;
+    --streak-orange:  #E8896A;
+    --struggle-low:   #81A492;
+    --struggle-mid:   #F0C459;
+    --struggle-high:  #D46B63;
+
+    --shadow-sm:  0 1px 3px rgba(0,0,0,.4);
+    --shadow-md:  0 4px 12px rgba(0,0,0,.5);
+    --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
+  }
 }
 
 /* ── Base resets ───────────────────────────────────────────────────────────── */
@@ -68,9 +104,9 @@
   /* Minimal scrollbar */
   ::-webkit-scrollbar        { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track  { background: transparent; }
-  ::-webkit-scrollbar-thumb  { background: rgba(255,255,255,.12); border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.22); }
-  * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; }
+  ::-webkit-scrollbar-thumb  { background: var(--border-strong); border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  * { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
 }
 
 /* ── Layout shell ──────────────────────────────────────────────────────────── */
