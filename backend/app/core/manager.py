@@ -93,7 +93,7 @@ class EduMentorManager:
             role="challenger"
         )
 
-    def process_input(self, user_input: str) -> str:
+    def process_input(self, user_input: str, image_base64: Optional[str] = None) -> str:
         """
         Main Event Loop: Input -> Orchestrator Class -> Agent -> Output
         
@@ -108,7 +108,7 @@ class EduMentorManager:
             history = self.state.session_history
             
             # 2. Process via Orchestrator (Decision + Bedrock Call)
-            response = self.orchestrator_logic.process(user_input, history=history)
+            response = self.orchestrator_logic.process(user_input, history=history, image_base64=image_base64)
             
             # 3. Update History
             self.state.session_history.append({"role": "user", "content": user_input})

@@ -96,6 +96,7 @@ async def startup_event():
 class ChatRequest(BaseModel):
     message: str
     student_id: str = "student_default"
+    image_base64: str | None = None
 
 class ChatResponse(BaseModel):
     response: str
@@ -119,7 +120,7 @@ def chat_endpoint(request: ChatRequest):
     manager = get_manager()
     try:
         manager.state.student_id = request.student_id
-        response_text = manager.process_input(request.message)
+        response_text = manager.process_input(request.message, image_base64=request.image_base64)
         return {
             "response": response_text,
             "telemetry": manager.state.dict(),

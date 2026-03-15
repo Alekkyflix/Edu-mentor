@@ -11,6 +11,7 @@
   --bg-surface:     #282a2c;
   --bg-hover:       #303236;
   --bg-active:      #35383c;
+  --glass-bg:       rgba(30,31,32,0.7);
   --sidebar-width:  260px;
 
   --border:         rgba(255,255,255,0.06);
@@ -80,7 +81,9 @@
     width: var(--sidebar-width);
     flex-shrink: 0;
     height: 100vh;
-    background: var(--bg-base);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
@@ -121,6 +124,10 @@
     justify-content: space-between;
     padding: 0 20px;
     border-bottom: 1px solid var(--border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10;
   }
 
   /* Messages area */

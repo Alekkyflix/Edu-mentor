@@ -2,6 +2,7 @@ import boto3
 from typing import Dict, Any, Optional, List
 import json
 import os
+import base64
 from botocore.exceptions import ClientError, BotoCoreError
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
@@ -63,7 +64,7 @@ class StrandsClient:
         retry=retry_if_exception_type((ClientError, BotoCoreError, TimeoutError)),
         reraise=True
     )
-    def invoke_agent(self, agent_name: str, input_text: str, context: Optional[Dict[str, Any]] = None, history: Optional[List[Dict[str, str]]] = None) -> str:
+    def invoke_agent(self, agent_name: str, input_text: str, context: Optional[Dict[str, Any]] = None, history: Optional[List[Dict[str, str]]] = None, image_base64: Optional[str] = None) -> str:
         """
         Invokes an agent using Bedrock's `converse` API.
         Includes exponential backoff (retries up to 3 times) for network resilience.
@@ -93,9 +94,39 @@ class StrandsClient:
                 })
         
         # Add the current message
+        user_content: List[Dict[str, Any]] = [{"text": enriched_input}]
+        
+        if image_base64:
+            try:
+                # Expecting data string like "data:image/jpeg;base64,...""
+                if image_base64.startswith('data:image'):
+                    header, b64_data = image_base64.split(',', 1)
+                    image_format = header.split(';')[0].split('/')[1]
+                    if image_format == 'jpg': 
+                        image_format = 'jpeg'
+                        
+                    image_bytes = base64.b64decode(b64_data)
+                    user_content.append({
+                        "image": {
+                            "format": image_format,
+                            "source": {"bytes": image_bytes}
+                        }
+                    })
+                else:
+                    # Fallback if raw base64 without data URI
+                    image_bytes = base64.b64decode(image_base64)
+                    user_content.append({
+                        "image": {
+                            "format": "jpeg",
+                            "source": {"bytes": image_bytes}
+                        }
+                    })
+            except Exception as e:
+                print(f"[StrandsSDK] Failed to parse image base64: {e}")
+
         messages.append({
             "role": "user",
-            "content": [{"text": enriched_input}],
+            "content": user_content,
         })
 
         # Build API call kwargs — only include `system` if non-empty

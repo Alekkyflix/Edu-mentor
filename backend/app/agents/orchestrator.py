@@ -28,7 +28,7 @@ class OrchestratorAgent:
         self.client = client
         self.state = state_manager
         
-    def process(self, user_input: str, history: Optional[List[Dict[str, str]]] = None) -> str:
+    def process(self, user_input: str, history: Optional[List[Dict[str, str]]] = None, image_base64: Optional[str] = None) -> str:
         """
         Process student input and route to appropriate agent.
         
@@ -79,7 +79,7 @@ class OrchestratorAgent:
                  
             # 3. Invoke Sub-agent
             # Note: self.client.invoke_agent logic now handles Bedrock call with history
-            response = self.client.invoke_agent(decision, user_input, context, history=history)
+            response = self.client.invoke_agent(decision, user_input, context, history=history, image_base64=image_base64)
             
             # 4. Post-processing (Update State)
             if decision == "instigator":

@@ -8,6 +8,10 @@ import {
     ChevronLeft, PanelLeft, Pencil
 } from 'lucide-react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Message {
@@ -34,23 +38,7 @@ const SUGGESTED_NAMES = [
 // ─── Agent personality emojis ─────────────────────────────────────────────────
 const AGENT_EMOJIS = ['🤖', '🦉', '⭐', '🔥', '🧠', '💡', '🦁', '🌟', '🎓', '🪄'];
 
-// ─── Simple Markdown → HTML renderer ─────────────────────────────────────────
-function renderMd(text: string): string {
-    const esc = (t: string) =>
-        t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return text
-        .replace(/```(\w*)\n?([\s\S]*?)```/g, (_, l, c) =>
-            `<pre><code class="language-${l}">${esc(c.trim())}</code></pre>`)
-        .replace(/`([^`]+)`/g, (_, c) => `<code>${esc(c)}</code>`)
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-        .replace(/^[-*•] (.+)$/gm, '<li>$1</li>')
-        .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
-        .replace(/\n{2,}/g, '</p><p>');
-}
+// ─── Simple Markdown → HTML renderer (Removed in favor of ReactMarkdown) ───
 
 // ─── Agent avatar (Gemini-style diamond / sparkles) ──────────────────────────
 function AgentAvatar({ emoji, size = 32 }: { emoji: string; size?: number }) {
@@ -164,6 +152,25 @@ function AgentNameModal({
                                 {em}
                             </button>
                         ))}
+                        <input 
+                            type="text"
+                            value={selectedEmoji}
+                            onChange={(e) => {
+                                // Allow mostly single emojis (limit to ~2-3 chars for composite emojis)
+                                const val = e.target.value;
+                                if (val) setSelectedEmoji(val.substring(0, 4));
+                            }}
+                            placeholder="+"
+                            style={{
+                                width: 40, height: 40, borderRadius: 10, fontSize: '1.3rem',
+                                border: '2px dashed var(--border-strong)',
+                                background: 'transparent',
+                                cursor: 'text', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', textAlign: 'center', color: 'var(--text-primary)',
+                                outline: 'none'
+                            }}
+                            title="Type custom emoji"
+                        />
                     </div>
                 </div>
 
@@ -263,19 +270,34 @@ export default function ChatPage() {
     const [input, setInput]           = useState('');
     const [isRecording, setIsRecording] = useState(false);
     const [isLoading, setIsLoading]   = useState(false);
+    const [isStreaming, setIsStreaming] = useState(false);
     const [copiedId, setCopiedId]     = useState<string | null>(null);
     const [backendStatus, setBackendStatus] = useState<'online' | 'offline' | 'checking'>('checking');
     const [xp, setXp]                 = useState(1250);
-    const [streak]                    = useState(7);
+    const [streak, setStreak]         = useState(7);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sessions, setSessions]       = useState<any[]>([]);
+    const [attachment, setAttachment]   = useState<{ url: string, file: File } | null>(null);
 
     // ── Refs ───────────────────────────────────────────────────────────────────
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef       = useRef<HTMLTextAreaElement>(null);
     const recognitionRef = useRef<any>(null);
+    const fileInputRef   = useRef<HTMLInputElement>(null);
 
     // ── Load agent name from localStorage on mount ────────────────────────────
     useEffect(() => {
+        try {
+            const rawSessions = localStorage.getItem('edu_chat_sessions');
+            if (rawSessions) setSessions(JSON.parse(rawSessions));
+            
+            const savedXp = localStorage.getItem('edu_xp');
+            if (savedXp) setXp(parseInt(savedXp, 10));
+            
+            const savedStreak = localStorage.getItem('edu_streak');
+            if (savedStreak) setStreak(parseInt(savedStreak, 10));
+        } catch (_) {}
+
         const saved = localStorage.getItem('edu_agent_name');
         const savedEmoji = localStorage.getItem('edu_agent_emoji');
         if (saved) {
@@ -364,7 +386,7 @@ export default function ChatPage() {
     // ── Auto-scroll ───────────────────────────────────────────────────────────
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages, isLoading]);
+    }, [messages, isLoading, isStreaming]);
 
     // ── Auto-resize textarea ──────────────────────────────────────────────────
     useEffect(() => {
@@ -407,47 +429,107 @@ export default function ChatPage() {
     const persistMessage = useCallback((msg: Message) => {
         try {
             const raw = localStorage.getItem('edu_chat_sessions') || '[]';
-            const sessions: any[] = JSON.parse(raw);
+            const sessionsList: any[] = JSON.parse(raw);
             const today = new Date().toDateString();
-            const existing = sessions.find((s: any) => s.date === today);
+            const existing = sessionsList.find((s: any) => s.date === today);
             if (existing) existing.messages.push({ text: msg.text, sender: msg.sender });
-            else sessions.unshift({ date: today, messages: [{ text: msg.text, sender: msg.sender }] });
-            localStorage.setItem('edu_chat_sessions', JSON.stringify(sessions.slice(0, 30)));
+            else sessionsList.unshift({ date: today, messages: [{ text: msg.text, sender: msg.sender }] });
+            const newSessions = sessionsList.slice(0, 30);
+            localStorage.setItem('edu_chat_sessions', JSON.stringify(newSessions));
+            setSessions(newSessions);
         } catch (_) {}
     }, []);
 
     const handleSend = useCallback(async () => {
         const trimmed = input.trim();
-        if (!trimmed || isLoading) return;
+        if ((!trimmed && !attachment) || isLoading || isStreaming) return;
         if (isRecording && recognitionRef.current) { recognitionRef.current.stop(); setIsRecording(false); }
 
-        const userMsg: Message = { id: Date.now().toString(), text: trimmed, sender: 'user', timestamp: new Date() };
+        const userMsg: Message = { id: Date.now().toString(), text: trimmed || '[Image Attached]', sender: 'user', timestamp: new Date() };
         setMessages(p => [...p, userMsg]);
         persistMessage(userMsg);
         setInput('');
+        const currentAttachment = attachment;
+        setAttachment(null);
         setIsLoading(true);
+
+        let image_base64 = undefined;
+        if (currentAttachment && currentAttachment.file) {
+            const reader = new FileReader();
+            image_base64 = await new Promise<string>((resolve) => {
+                reader.onload = () => resolve(reader.result as string);
+                reader.readAsDataURL(currentAttachment.file);
+            });
+        }
 
         const agentMsgId = (Date.now() + 1).toString();
         try {
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: trimmed, student_id: 'student123' }),
+                body: JSON.stringify({ message: trimmed || '[Image Attached]', image_base64, student_id: 'student123' }),
             });
             if (!res.ok) throw new Error('Bad response from backend');
             setBackendStatus('online');
-            const data = await res.json();
+
+            setIsLoading(false);
+            setIsStreaming(true);
+
+            const contentType = res.headers.get('content-type') || '';
+            let finalResponseText = '';
+            let telemetryXp = undefined;
+
             const agentMsg: Message = {
                 id: agentMsgId,
-                text: data.response || 'No response.',
+                text: '',
                 sender: 'agent',
                 timestamp: new Date(),
                 agentName: agentName,
             };
             setMessages(p => [...p, agentMsg]);
-            persistMessage(agentMsg);
-            if (data.telemetry?.xp !== undefined) setXp(data.telemetry.xp);
-            else setXp(prev => prev + 25);
+
+            if (contentType.includes('application/json')) {
+                const data = await res.json();
+                finalResponseText = data.response || 'No response.';
+                if (data.telemetry?.xp !== undefined) telemetryXp = data.telemetry.xp;
+
+                // Simulated streaming for JSON (UX enhancement)
+                // Split string preserving whitespaces
+                const tokens = finalResponseText.match(/(\s+|\S+)/g) || [finalResponseText];
+                let currentText = '';
+                for (let i = 0; i < tokens.length; i++) {
+                    currentText += tokens[i];
+                    setMessages(p => p.map(m => m.id === agentMsgId ? { ...m, text: currentText } : m));
+                    await new Promise(r => setTimeout(r, 15));
+                }
+            } else {
+                // Real streaming handler (future-proofing)
+                const reader = res.body?.getReader();
+                const decoder = new TextDecoder();
+                if (reader) {
+                    let currentText = '';
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
+                        const chunk = decoder.decode(value, { stream: true });
+                        currentText += chunk;
+                        setMessages(p => p.map(m => m.id === agentMsgId ? { ...m, text: currentText } : m));
+                    }
+                    finalResponseText = currentText;
+                }
+            }
+
+            persistMessage({ ...agentMsg, text: finalResponseText });
+            if (telemetryXp !== undefined) {
+                setXp(telemetryXp);
+                localStorage.setItem('edu_xp', telemetryXp.toString());
+            } else {
+                setXp(prev => {
+                    const newXp = prev + 25;
+                    localStorage.setItem('edu_xp', newXp.toString());
+                    return newXp;
+                });
+            }
         } catch (_) {
             setBackendStatus('offline');
             setMessages(p => [...p, {
@@ -459,8 +541,9 @@ export default function ChatPage() {
             }]);
         } finally {
             setIsLoading(false);
+            setIsStreaming(false);
         }
-    }, [input, isLoading, isRecording, persistMessage, agentName]);
+    }, [input, isLoading, isStreaming, isRecording, persistMessage, agentName]);
 
     const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -474,9 +557,14 @@ export default function ChatPage() {
         return (
             <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
+                layout
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ 
+                    type: 'spring', 
+                    stiffness: 400, 
+                    damping: 30 
+                }}
             >
                 {msg.sender === 'user' ? (
                     <div className="gem-msg-user my-2">
@@ -493,10 +581,14 @@ export default function ChatPage() {
                                     {msg.agentName || agentName} · EduMentor AI
                                 </div>
                             )}
-                            <div
-                                className="ai-content"
-                                dangerouslySetInnerHTML={{ __html: `<p>${renderMd(msg.text)}</p>` }}
-                            />
+                            <div className="ai-content">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkMath]}
+                                    rehypePlugins={[rehypeKatex]}
+                                >
+                                    {msg.text}
+                                </ReactMarkdown>
+                            </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 6, color: 'var(--text-muted)' }}>
                                 <span style={{ fontSize: '11px' }}>
                                     {msg.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
@@ -684,19 +776,21 @@ export default function ChatPage() {
                             {/* History heading */}
                             <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
                                 <p className="gem-section-label" style={{ marginBottom: 6 }}>Recent chats</p>
-                                {[
-                                    { preview: 'Help me with fractions',       date: 'Yesterday' },
-                                    { preview: 'Algebra: solving for x',       date: 'Mon' },
-                                    { preview: 'M-Pesa percentage problem',    date: 'Sun' },
-                                    { preview: 'Geometry – angles quiz',       date: 'Sat' },
-                                ].map((s, i) => (
-                                    <div key={i} className={`gem-history-item ${i === 0 ? 'active' : ''}`}>
-                                        <div style={{ fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                            {s.preview}
+                                {sessions.length > 0 ? sessions.map((s, i) => {
+                                    const preview = s.messages && s.messages.length > 0 ? s.messages[0].text : 'New chat';
+                                    return (
+                                        <div key={i} className={`gem-history-item ${i === 0 ? 'active' : ''}`}>
+                                            <div style={{ fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {preview}
+                                            </div>
+                                            <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{s.date}</div>
                                         </div>
-                                        <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{s.date}</div>
+                                    );
+                                }) : (
+                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', padding: '0 4px' }}>
+                                        No recent chats
                                     </div>
-                                ))}
+                                )}
                             </div>
 
                             {/* Bottom: XP + status */}
@@ -767,7 +861,7 @@ export default function ChatPage() {
                             </AnimatePresence>
 
                             {/* Typing indicator */}
-                            {isLoading && (
+                            {isLoading && !isStreaming && (
                                 <motion.div
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -817,6 +911,15 @@ export default function ChatPage() {
                     {/* Input area */}
                     <div className="gem-input-area">
                         <div className="gem-input-box">
+                            {attachment && (
+                                <div style={{ position: 'relative', display: 'inline-block', alignSelf: 'flex-start', marginBottom: 10 }}>
+                                    <img src={attachment.url} alt="Attachment" style={{ height: 60, borderRadius: 8, border: '1px solid var(--border)' }} />
+                                    <button 
+                                        onClick={() => setAttachment(null)} 
+                                        style={{ position: 'absolute', top: -6, right: -6, background: 'var(--bg-active)', borderRadius: '50%', border: '1px solid var(--border)', color: 'var(--text-primary)', width: 22, height: 22, cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >×</button>
+                                </div>
+                            )}
                             <textarea
                                 ref={inputRef}
                                 rows={1}
@@ -835,9 +938,20 @@ export default function ChatPage() {
                             />
                             <div className="gem-input-actions">
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <button className="gem-icon-btn" title="Attach file" style={{ padding: '6px 8px' }}>
+                                    <button className="gem-icon-btn" title="Attach file" style={{ padding: '6px 8px' }} onClick={() => fileInputRef.current?.click()}>
                                         <Plus size={18} />
                                     </button>
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef} 
+                                        style={{ display: 'none' }} 
+                                        accept="image/*,application/pdf" 
+                                        onChange={e => {
+                                            const file = e.target.files?.[0];
+                                            if (file) setAttachment({ url: URL.createObjectURL(file), file });
+                                            if (e.target) e.target.value = '';
+                                        }} 
+                                    />
                                     <button
                                         onClick={toggleRecording}
                                         className="gem-icon-btn"
@@ -860,7 +974,7 @@ export default function ChatPage() {
 
                                 <button
                                     onClick={handleSend}
-                                    disabled={!input.trim() || isLoading}
+                                    disabled={(!input.trim() && !attachment) || isLoading}
                                     className="gem-send-btn"
                                     title="Send (Enter)"
                                 >
