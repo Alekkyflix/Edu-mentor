@@ -929,44 +929,52 @@ export default function ChatPage() {
                     {/* ══ MAIN AREA ════════════════════════════════════════════════ */}
                     <div className="gem-main">
 
-                    {/* Top bar */}
-                    <header className="gem-topbar">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 0, overflow: 'hidden' }}>
-                            {!sidebarOpen && (
-                                <button onClick={() => setSidebarOpen(true)} className="gem-icon-btn" style={{ padding: '7px', flexShrink: 0 }}>
-                                    <PanelLeft size={18} />
-                                </button>
-                            )}
+                    <header className="gem-topbar" style={{ 
+                        height: 56, 
+                        background: 'var(--bg-surface)', 
+                        borderBottom: '1px solid var(--border-strong)',
+                        padding: '0 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, minWidth: 0 }}>
+                            <button 
+                                onClick={() => setSidebarOpen(true)} 
+                                className="gem-icon-btn" 
+                                style={{ padding: '8px', background: 'transparent' }}
+                            >
+                                <PanelLeft size={20} />
+                            </button>
                             {agentName && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, overflow: 'hidden' }}>
-                                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{agentEmoji}</span>
-                                    <span 
-                                        className="truncate-text"
-                                        style={{
-                                            fontFamily: "'Google Sans', Outfit, sans-serif",
-                                            fontSize: '0.9rem', fontWeight: 600,
-                                            color: 'var(--text-primary)',
-                                            display: 'inline-block'
-                                        }}
-                                    >
-                                        <span className="hidden xs:inline">Chat with </span>{agentName}
-                                    </span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                                    <span style={{ fontSize: '1.2rem' }}>{agentEmoji}</span>
+                                    <span className="truncate-text" style={{ fontWeight: 600, fontSize: '0.9rem' }}>{agentName}</span>
                                 </div>
                             )}
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                            {!sidebarOpen && (
-                                <div style={{ display: 'flex', gap: 4 }}>
-                                    <span className="xp-badge" style={{ fontSize: '11px' }}>⚡ {xp.toLocaleString()} <span className="hidden xs:inline">XP</span></span>
-                                    <span className="streak-badge" style={{ fontSize: '11px' }}>🔥 {streak}d</span>
-                                </div>
-                            )}
-                            <Link href="/dashboard" className="gem-icon-btn" style={{ padding: '7px' }}>
-                                <Trophy size={16} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <div className="streak-badge" style={{ fontSize: '12px', padding: '4px 8px', borderRadius: 8, background: 'var(--bg-hover)' }}>
+                                🔥 {streak}d
+                            </div>
+                            <Link href="/dashboard" className="gem-icon-btn" style={{ padding: '8px' }}>
+                                <Trophy size={18} />
                             </Link>
-                            <Link href="/" className="gem-icon-btn" style={{ padding: '7px' }}>
+                            <Link href="/" style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 4, 
+                                padding: '6px 10px', 
+                                borderRadius: 10, 
+                                background: 'var(--bg-active)',
+                                color: 'var(--text-primary)',
+                                textDecoration: 'none',
+                                fontSize: '13px',
+                                fontWeight: 500
+                            }}>
                                 <ChevronLeft size={16} />
+                                <span className="hidden xs:inline">Back</span>
                             </Link>
                         </div>
                     </header>

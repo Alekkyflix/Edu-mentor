@@ -171,40 +171,29 @@ export default function DashboardPage() {
             }}
         >
             {/* ── Header ────────────────────────────────────────────────────── */}
-            <header className="gem-topbar">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <Link href="/chat">
-                        <button
-                            style={{
-                                padding: '6px 8px', borderRadius: 8,
-                                background: 'transparent', border: 'none',
-                                color: 'var(--text-secondary)', cursor: 'pointer',
-                                display: 'flex', transition: 'background .15s',
-                            }}
-                            className="hover:bg-white/5"
-                        >
-                            <ChevronLeft size={20} />
-                        </button>
+            <header className="gem-topbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-strong)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Link href="/chat" style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 10, background: 'var(--bg-active)', color: 'var(--text-primary)', textDecoration: 'none', fontSize: '13px', fontWeight: 500 }}>
+                        <ChevronLeft size={16} />
+                        <span className="hidden sm:inline">Back</span>
                     </Link>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div
-                            style={{
-                                width: 26, height: 26, borderRadius: '50%',
-                                background: 'linear-gradient(135deg, #4285f4, #81c995)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            }}
-                        >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 8 }}>
+                        <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg, #4285f4, #81c995)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Sparkles size={12} color="#fff" />
                         </div>
-                        <span style={{ fontWeight: 600, fontSize: '0.9375rem' }} className="hidden sm:inline">Dashboard</span>
+                        <span style={{ fontWeight: 600, fontSize: '0.9375rem' }} className="hidden xs:inline">Dashboard</span>
                     </div>
                 </div>
 
-                <Link href="/chat" className="btn-gem" style={{ fontSize: '13px', padding: '8px 18px' }}>
-                    <span className="hidden sm:inline">Continue Learning</span>
-                    <span className="sm:hidden">Continue</span>
-                    <ArrowRight size={14} />
-                </Link>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="streak-badge" style={{ fontSize: '12px', padding: '4px 8px', borderRadius: 8, background: 'var(--bg-hover)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        🔥 {streak}d
+                    </div>
+                    <Link href="/chat" className="btn-gem" style={{ fontSize: '13px', padding: '8px 18px' }}>
+                        <span className="hidden sm:inline">Continue Learning</span>
+                        <span className="sm:hidden">Continue</span>
+                    </Link>
+                </div>
             </header>
 
             <div className="container-responsive">
