@@ -693,6 +693,19 @@ export default function ChatPage() {
             </AnimatePresence>
 
             <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-base)' }}>
+                {/* Mobile Side Overlay */}
+                <AnimatePresence>
+                    {sidebarOpen && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSidebarOpen(false)}
+                            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 90 }}
+                            className="md:hidden"
+                        />
+                    )}
+                </AnimatePresence>
 
                 {/* ══ SIDEBAR ════════════════════════════════════════════════════ */}
                 <AnimatePresence initial={false}>
@@ -1105,23 +1118,29 @@ export default function ChatPage() {
                     </div>
                 </div>
 
+                {/* Mobile Code Overlay */}
+                <AnimatePresence>
+                    {codePanelContent && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setCodePanelContent(null)}
+                            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 900 }}
+                            className="sm:hidden"
+                        />
+                    )}
+                </AnimatePresence>
+
                 {/* ══ CODE PANEL ════════════════════════════════════════════════ */}
                 <AnimatePresence>
                     {codePanelContent && (
                         <motion.aside
-                            initial={{ x: 400, opacity: 0 }}
+                            initial={{ x: '100%', opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: 400, opacity: 0 }}
+                            exit={{ x: '100%', opacity: 0 }}
                             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                            style={{ 
-                                width: '400px', 
-                                borderLeft: '1px solid var(--border)', 
-                                background: 'var(--bg-surface)', 
-                                display: 'flex', 
-                                flexDirection: 'column',
-                                flexShrink: 0,
-                                zIndex: 50
-                            }}
+                            className="gem-code-panel"
                         >
                             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-base)' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
