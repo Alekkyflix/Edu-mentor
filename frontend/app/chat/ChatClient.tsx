@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Mic, Send, Copy, Check, Plus, Settings, Disc,
     Sparkles, BookOpen, Trophy, Flame,
-    ChevronLeft, PanelLeft, Pencil
+    ChevronLeft, PanelLeft, Pencil, Zap
 } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -280,6 +280,8 @@ export default function ChatPage() {
     const [sessions, setSessions]       = useState<any[]>([]);
     const [attachment, setAttachment]   = useState<{ url: string, file: File } | null>(null);
     const [codePanelContent, setCodePanelContent] = useState<{ code: string; language: string } | null>(null);
+    const [sessionId, setSessionId] = useState(() => Date.now().toString());
+    const [isConcise, setIsConcise] = useState(false);
 
     // ── Refs ───────────────────────────────────────────────────────────────────
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -426,18 +428,31 @@ export default function ChatPage() {
         try {
             const raw = localStorage.getItem('edu_chat_sessions') || '[]';
             const sessionsList: any[] = JSON.parse(raw);
-            const today = new Date().toDateString();
-            const existing = sessionsList.find((s: any) => s.date === today);
-            if (existing) existing.messages.push({ text: msg.text, sender: msg.sender });
-            else sessionsList.unshift({ date: today, messages: [{ text: msg.text, sender: msg.sender }] });
-            const newSessions = sessionsList.slice(0, 30);
+            const today = new Date().toLocaleDateString();
+            
+            const existingIdx = sessionsList.findIndex((s: any) => s.id === sessionId);
+            if (existingIdx > -1) {
+                sessionsList[existingIdx].messages.push({ text: msg.text, sender: msg.sender });
+                if (!sessionsList[existingIdx].title && msg.sender === 'user') {
+                    sessionsList[existingIdx].title = msg.text.substring(0, 45).trim() + (msg.text.length > 45 ? '...' : '');
+                }
+            } else {
+                sessionsList.unshift({ 
+                    id: sessionId,
+                    date: today, 
+                    title: msg.sender === 'user' ? msg.text.substring(0, 45).trim() + (msg.text.length > 45 ? '...' : '') : 'New Chat',
+                    messages: [{ text: msg.text, sender: msg.sender }] 
+                });
+            }
+            const newSessions = sessionsList.slice(0, 50);
             localStorage.setItem('edu_chat_sessions', JSON.stringify(newSessions));
             setSessions(newSessions);
         } catch (_) {}
-    }, []);
+    }, [sessionId]);
 
     const loadSession = (session: any) => {
         if (!session.messages) return;
+        setSessionId(session.id || Date.now().toString());
         const restoredMessages: Message[] = session.messages.map((m: any, idx: number) => ({
             id: `restored-${Date.now()}-${idx}`,
             text: m.text,
@@ -445,7 +460,7 @@ export default function ChatPage() {
             timestamp: new Date(),
         }));
         setMessages(restoredMessages);
-        if (window.innerWidth < 768) setSidebarOpen(false);
+        if (window.innerWidth < 1024) setSidebarOpen(false);
     };
 
     const handleSend = useCallback(async () => {
@@ -472,10 +487,12 @@ export default function ChatPage() {
 
         const agentMsgId = (Date.now() + 1).toString();
         try {
+            const messageToSend = isConcise ? `${trimmed}\n\n[Please provide a highly concise summary. If there is code, provide it only as a clickable snippet and avoid exhaustive line-by-line explanation.]` : trimmed;
+
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: trimmed || '[Image Attached]', image_base64, student_id: 'student123' }),
+                body: JSON.stringify({ message: messageToSend || '[Image Attached]', image_base64, student_id: 'student123' }),
             });
             if (!res.ok) throw new Error('Bad response from backend');
             setBackendStatus('online');
@@ -551,7 +568,7 @@ export default function ChatPage() {
             setIsLoading(false);
             setIsStreaming(false);
         }
-    }, [input, isLoading, isStreaming, isRecording, persistMessage, agentName, attachment]);
+    }, [input, isLoading, isStreaming, isRecording, persistMessage, agentName, attachment, isConcise, sessionId]);
 
     const handleKey = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -728,12 +745,29 @@ export default function ChatPage() {
                                 >
                                     <PanelLeft size={18} />
                                 </button>
+                                <div style={{ 
+                                    padding: '4px 8px', 
+                                    background: isConcise ? 'var(--brand-soft)' : 'var(--bg-active)', 
+                                    borderRadius: 6, 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 6, 
+                                    cursor: 'pointer',
+                                    border: isConcise ? '1px solid var(--brand)' : '1px solid var(--border)'
+                                }}
+                                onClick={() => setIsConcise(!isConcise)}
+                                title={isConcise ? "Detailed Mode" : "Concise Mode"}
+                                >
+                                    <Zap size={14} color={isConcise ? 'var(--brand)' : 'var(--text-muted)'} />
+                                    <span style={{ fontSize: '11px', fontWeight: 600, color: isConcise ? 'var(--brand)' : 'var(--text-muted)' }}>
+                                        {isConcise ? 'Short' : 'Full'}
+                                    </span>
+                                </div>
                                 <button
                                     onClick={() => {
-                                        if (agentName) {
-                                            setMessages([]);
-                                            setCodePanelContent(null);
-                                        }
+                                        setMessages([]);
+                                        setCodePanelContent(null);
+                                        setSessionId(Date.now().toString());
                                     }}
                                     className="gem-icon-btn"
                                     style={{ padding: '7px', marginLeft: 'auto' }}
@@ -854,18 +888,17 @@ export default function ChatPage() {
                             <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
                                 <p className="gem-section-label" style={{ marginBottom: 6 }}>Recent chats</p>
                                 {sessions.length > 0 ? sessions.map((s, i) => {
-                                    const preview = s.messages && s.messages.length > 0 ? s.messages[0].text : 'New chat';
                                     return (
                                         <div 
-                                            key={i} 
-                                            className={`gem-history-item`}
+                                            key={s.id || i} 
+                                            className={`gem-history-item ${s.id === sessionId ? 'active' : ''}`}
                                             onClick={() => loadSession(s)}
-                                            style={{ cursor: 'pointer' }}
+                                            style={{ cursor: 'pointer', marginBottom: 6 }}
                                         >
-                                            <div style={{ fontSize: '13px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                {preview}
+                                            <div style={{ fontSize: '13px', fontWeight: s.id === sessionId ? 600 : 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
+                                                {s.title || (s.messages && s.messages.length > 0 ? s.messages[0].text : 'New Chat')}
                                             </div>
-                                            <div style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>{s.date}</div>
+                                            <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: 2 }}>{s.date}</div>
                                         </div>
                                     );
                                 }) : (
@@ -1163,6 +1196,14 @@ export default function ChatPage() {
                                         <span style={{ fontSize: '14px' }}>⬇️</span>
                                     </button>
                                     <div style={{ width: 1, height: 16, background: 'var(--border)', margin: '0 4px' }} />
+                                    <button
+                                        onClick={() => setIsConcise(!isConcise)}
+                                        className={`gem-icon-btn ${isConcise ? '!text-[var(--accent)] !bg-[var(--accent-soft)]' : ''}`}
+                                        style={{ padding: '6px' }}
+                                        title={isConcise ? "Switch to detailed mode" : "Switch to concise mode"}
+                                    >
+                                        <Zap size={16} />
+                                    </button>
                                     <button
                                         onClick={() => setCodePanelContent(null)}
                                         className="gem-icon-btn"

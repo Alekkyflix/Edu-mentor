@@ -335,7 +335,7 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Right column - Achievements */}
-                    <div style={{ width: '100%', lgWidth: 320, display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    <div className="w-full lg:w-[320px]" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                         {/* Achievements */}
                         <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}>

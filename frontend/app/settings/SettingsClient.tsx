@@ -60,6 +60,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
                 padding: '14px 20px',
                 borderTop: '1px solid var(--border)',
             }}
+            className="settings-row"
         >
             <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: 6 }}>{label}</p>
             {children}
@@ -197,7 +198,7 @@ export default function SettingsPage() {
                             style={{
                                 flex: 1, display: 'flex', alignItems: 'center',
                                 justifyContent: 'center', gap: 6,
-                                padding: '8px 10px', borderRadius: 10,
+                                padding: '8px 4px', borderRadius: 10,
                                 border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500,
                                 transition: 'all .15s',
                                 background: activeTab === t.id ? 'var(--bg-hover)' : 'transparent',
@@ -205,7 +206,9 @@ export default function SettingsPage() {
                             }}
                         >
                             {t.icon}
-                            {t.label}
+                            <span className="hide-text-mobile overflow-hidden text-ellipsis whitespace-nowrap">
+                                {t.label}
+                            </span>
                         </button>
                     ))}
                 </nav>
@@ -276,7 +279,15 @@ export default function SettingsPage() {
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: '14px', fontWeight: 500 }}>{profile.name}</span>
+                                        <span style={{ 
+                                            fontSize: '14px', 
+                                            fontWeight: 500,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            flex: 1,
+                                            marginRight: 8
+                                        }}>{profile.name}</span>
                                         <button
                                             onClick={() => setEditingName(true)}
                                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: 4 }}
@@ -309,7 +320,15 @@ export default function SettingsPage() {
                                     </div>
                                 ) : (
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ fontSize: '14px', fontWeight: 500 }}>{profile.email}</span>
+                                        <span style={{ 
+                                            fontSize: '14px', 
+                                            fontWeight: 500,
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            flex: 1,
+                                            marginRight: 8
+                                        }}>{profile.email}</span>
                                         <button
                                             onClick={() => setEditingEmail(true)}
                                             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: 4 }}
