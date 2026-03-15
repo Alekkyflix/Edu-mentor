@@ -81,6 +81,7 @@ function StatCard({ icon, label, value, sub, accent }: {
             }}
         >
             <div
+                className="gem-stat-icon"
                 style={{
                     width: 46, height: 46, borderRadius: 12, flexShrink: 0,
                     background: `${accent}18`,
@@ -170,16 +171,7 @@ export default function DashboardPage() {
             }}
         >
             {/* ── Header ────────────────────────────────────────────────────── */}
-            <header
-                style={{
-                    position: 'sticky', top: 0, zIndex: 40,
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0 28px', height: 56,
-                    background: 'rgba(30,31,32,0.85)',
-                    backdropFilter: 'blur(12px)',
-                    borderBottom: '1px solid var(--border)',
-                }}
-            >
+            <header className="gem-topbar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <Link href="/chat">
                         <button
@@ -204,17 +196,18 @@ export default function DashboardPage() {
                         >
                             <Sparkles size={12} color="#fff" />
                         </div>
-                        <span style={{ fontWeight: 600, fontSize: '0.9375rem' }}>Dashboard</span>
+                        <span style={{ fontWeight: 600, fontSize: '0.9375rem' }} className="hidden sm:inline">Dashboard</span>
                     </div>
                 </div>
 
                 <Link href="/chat" className="btn-gem" style={{ fontSize: '13px', padding: '8px 18px' }}>
-                    Continue Learning
+                    <span className="hidden sm:inline">Continue Learning</span>
+                    <span className="sm:hidden">Continue</span>
                     <ArrowRight size={14} />
                 </Link>
             </header>
 
-            <div style={{ maxWidth: 1140, margin: '0 auto', padding: '28px 24px 60px' }}>
+            <div className="container-responsive">
 
                 {/* ── XP progress bar ───────────────────────────────────────── */}
                 <motion.div
@@ -267,25 +260,17 @@ export default function DashboardPage() {
                 </motion.div>
 
                 {/* ── Stat cards row ─────────────────────────────────────────── */}
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                        gap: 14,
-                        marginBottom: 24,
-                    }}
-                >
-                    <StatCard icon={<Flame size={22} />}   label="Current Streak"   value={`${streak} days`} accent="var(--streak-orange)" />
-                    <StatCard icon={<Target size={22} />}  label="Problems Solved"  value={`${defaultStats.totalProblems}`} accent="var(--accent)" />
-                    <StatCard icon={<Crown size={22} />}   label="Leaderboard Rank" value={`#${defaultStats.rank}`} accent="var(--xp-gold)" />
-                    <StatCard icon={<Zap size={22} />}     label="Avg Struggle"     value={`${defaultStats.averageStruggle}/5`} accent="var(--accent-2)" />
+                <div className="grid-responsive" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginBottom: 24 }}>
+                    <StatCard icon={<Flame size={22} />}   label="Streak"   value={`${streak}d`} accent="var(--streak-orange)" />
+                    <StatCard icon={<Target size={22} />}  label="Solved"  value={`${defaultStats.totalProblems}`} accent="var(--accent)" />
+                    <StatCard icon={<Crown size={22} />}   label="Rank" value={`#${defaultStats.rank}`} accent="var(--xp-gold)" />
+                    <StatCard icon={<Zap size={22} />}     label="Struggle"     value={`${defaultStats.averageStruggle}`} accent="var(--accent-2)" />
                 </div>
 
                 {/* ── Main content grid ──────────────────────────────────────── */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20 }}>
-
-                    {/* Left */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <div className="flex flex-col lg:flex-row gap-5">
+                    {/* Left - Charts */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                         {/* Weekly XP chart */}
                         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
@@ -349,8 +334,8 @@ export default function DashboardPage() {
                         </motion.div>
                     </div>
 
-                    {/* Right column */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    {/* Right column - Achievements */}
+                    <div style={{ width: '100%', lgWidth: 320, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                         {/* Achievements */}
                         <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}>

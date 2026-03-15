@@ -276,7 +276,7 @@ export default function ChatPage() {
     const [backendStatus, setBackendStatus] = useState<'online' | 'offline' | 'checking'>('checking');
     const [xp, setXp]                 = useState(1250);
     const [streak, setStreak]         = useState(7);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sessions, setSessions]       = useState<any[]>([]);
     const [attachment, setAttachment]   = useState<{ url: string, file: File } | null>(null);
     const [codePanelContent, setCodePanelContent] = useState<{ code: string; language: string } | null>(null);
@@ -892,45 +892,48 @@ export default function ChatPage() {
                     )}
                 </AnimatePresence>
 
-                {/* ══ MAIN AREA ════════════════════════════════════════════════ */}
-                <div className="gem-main">
+                <div className="gem-shell-main">
+                    {/* ══ MAIN AREA ════════════════════════════════════════════════ */}
+                    <div className="gem-main">
 
                     {/* Top bar */}
                     <header className="gem-topbar">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1, minWidth: 0, overflow: 'hidden' }}>
                             {!sidebarOpen && (
-                                <button onClick={() => setSidebarOpen(true)} className="gem-icon-btn" style={{ padding: '7px' }}>
+                                <button onClick={() => setSidebarOpen(true)} className="gem-icon-btn" style={{ padding: '7px', flexShrink: 0 }}>
                                     <PanelLeft size={18} />
                                 </button>
                             )}
                             {agentName && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <span style={{ fontSize: '1rem' }}>{agentEmoji}</span>
-                                    <span style={{
-                                        fontFamily: "'Google Sans', Outfit, sans-serif",
-                                        fontSize: '0.9375rem', fontWeight: 500,
-                                        color: 'var(--text-secondary)',
-                                    }}>
-                                        Chat with {agentName}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, overflow: 'hidden' }}>
+                                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{agentEmoji}</span>
+                                    <span 
+                                        className="truncate-text"
+                                        style={{
+                                            fontFamily: "'Google Sans', Outfit, sans-serif",
+                                            fontSize: '0.9rem', fontWeight: 600,
+                                            color: 'var(--text-primary)',
+                                            display: 'inline-block'
+                                        }}
+                                    >
+                                        <span className="hidden xs:inline">Chat with </span>{agentName}
                                     </span>
                                 </div>
                             )}
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                             {!sidebarOpen && (
-                                <>
-                                    <span className="xp-badge" style={{ marginRight: 4 }}>⚡ {xp.toLocaleString()} XP</span>
-                                    <span className="streak-badge" style={{ marginRight: 4 }}>🔥 {streak}d</span>
-                                </>
+                                <div style={{ display: 'flex', gap: 4 }}>
+                                    <span className="xp-badge" style={{ fontSize: '11px' }}>⚡ {xp.toLocaleString()} <span className="hidden xs:inline">XP</span></span>
+                                    <span className="streak-badge" style={{ fontSize: '11px' }}>🔥 {streak}d</span>
+                                </div>
                             )}
-                            <Link href="/dashboard" className="gem-icon-btn">
+                            <Link href="/dashboard" className="gem-icon-btn" style={{ padding: '7px' }}>
                                 <Trophy size={16} />
-                                <span style={{ display: 'none' }} className="sm:inline">Dashboard</span>
                             </Link>
-                            <Link href="/" className="gem-icon-btn">
+                            <Link href="/" className="gem-icon-btn" style={{ padding: '7px' }}>
                                 <ChevronLeft size={16} />
-                                <span style={{ display: 'none' }} className="sm:inline">Home</span>
                             </Link>
                         </div>
                     </header>
@@ -1118,19 +1121,7 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                {/* Mobile Code Overlay */}
-                <AnimatePresence>
-                    {codePanelContent && (
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setCodePanelContent(null)}
-                            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 900 }}
-                            className="sm:hidden"
-                        />
-                    )}
-                </AnimatePresence>
+
 
                 {/* ══ CODE PANEL ════════════════════════════════════════════════ */}
                 <AnimatePresence>
@@ -1190,6 +1181,7 @@ export default function ChatPage() {
                     )}
                 </AnimatePresence>
             </div>
-        </>
+        </div>
+    </>
     );
 }

@@ -169,14 +169,7 @@ export default function SettingsPage() {
         <div style={{ minHeight: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)', overflowY: 'auto' }}>
 
             {/* ── Header ─────────────────────────────────────────────────────── */}
-            <header style={{
-                position: 'sticky', top: 0, zIndex: 40,
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '0 20px', height: 56,
-                background: 'rgba(30,31,32,0.85)',
-                backdropFilter: 'blur(12px)',
-                borderBottom: '1px solid var(--border)',
-            }}>
+            <header className="gem-topbar">
                 <Link href="/chat">
                     <button style={{
                         padding: '7px', borderRadius: 8, display: 'flex',
@@ -189,7 +182,7 @@ export default function SettingsPage() {
                 <h1 style={{ fontWeight: 600, fontSize: '0.9375rem' }}>Settings</h1>
             </header>
 
-            <div style={{ maxWidth: 580, margin: '0 auto', padding: '28px 20px 60px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="container-responsive" style={{ maxWidth: 580, display: 'flex', flexDirection: 'column', gap: 20 }}>
 
                 {/* ── Tab row ──────────────────────────────────────────────────── */}
                 <nav style={{
@@ -495,7 +488,7 @@ export default function SettingsPage() {
                                     Choose a beautiful colour palette to personalise your study space. EduMentor will automatically adapt these themes to your system's light or dark mode.
                                 </p>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
                                     {[
                                         { id: 'sunset', name: 'Temple Sunset', desc: 'Warm sandstone and burning orange', color1: '#19242C', color2: '#C66831' },
                                         { id: 'sleek', name: 'Sleek Frost', desc: 'Deep space slate and cool icy blue', color1: '#05090C', color2: '#688A96' },

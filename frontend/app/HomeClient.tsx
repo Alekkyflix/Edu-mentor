@@ -68,7 +68,7 @@ export default function HomePage() {
                 style={{
                     position: 'sticky', top: 0, zIndex: 50,
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0 32px', height: 60,
+                    padding: '0 20px', height: 60,
                     background: 'rgba(30,31,32,0.8)',
                     backdropFilter: 'blur(12px)',
                     borderBottom: '1px solid var(--border)',
@@ -98,10 +98,11 @@ export default function HomePage() {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <Link href="/dashboard" className="nav-link" style={{ padding: '6px 12px' }}>
-                        Dashboard
+                        <span className="hidden sm:inline">Dashboard</span>
                     </Link>
-                    <Link href="/chat" className="btn-gem">
-                        Start Learning
+                    <Link href="/chat" className="btn-gem" style={{ padding: '8px 16px', fontSize: '13px' }}>
+                        <span className="hidden sm:inline">Start Learning</span>
+                        <span className="sm:hidden">Start</span>
                         <ArrowRight size={15} />
                     </Link>
                 </div>
@@ -112,7 +113,7 @@ export default function HomePage() {
                 style={{
                     position: 'relative', zIndex: 1,
                     maxWidth: 760, margin: '0 auto',
-                    padding: '96px 24px 64px',
+                    padding: '64px 20px 48px',
                     textAlign: 'center',
                 }}
             >
@@ -195,8 +196,8 @@ export default function HomePage() {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
                     style={{
-                        display: 'flex', gap: 40, justifyContent: 'center',
-                        marginTop: 56,
+                        display: 'flex', gap: '5vw', justifyContent: 'center', flexWrap: 'wrap',
+                        marginTop: 48,
                         borderTop: '1px solid var(--border)',
                         paddingTop: 32,
                     }}
@@ -227,7 +228,7 @@ export default function HomePage() {
                 style={{
                     position: 'relative', zIndex: 1,
                     maxWidth: 1100, margin: '0 auto',
-                    padding: '60px 24px',
+                    padding: '40px 20px',
                 }}
             >
                 <motion.div
@@ -248,7 +249,7 @@ export default function HomePage() {
                     </p>
                 </motion.div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+                <div className="grid-responsive">
                     {FEATURES.map((f, i) => (
                         <motion.div
                             key={f.title}
